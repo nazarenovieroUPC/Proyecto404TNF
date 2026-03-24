@@ -4,5 +4,4 @@
 #include "Modules/ModuleManager.h"
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, Proyecto404TNF, "Proyecto404TNF" );
-
-DEFINE_LOG_CATEGORY(LogProyecto404TNF)
+ 

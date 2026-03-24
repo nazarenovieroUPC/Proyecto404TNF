@@ -6,17 +6,12 @@
 #include "GameFramework/GameModeBase.h"
 #include "Proyecto404TNFGameMode.generated.h"
 
-/**
- *  Simple GameMode for a third person game
- */
-UCLASS(abstract)
+UCLASS(minimalapi)
 class AProyecto404TNFGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
 public:
-	
-	/** Constructor */
 	AProyecto404TNFGameMode();
 };
 
