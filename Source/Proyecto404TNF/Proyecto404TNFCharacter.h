@@ -43,10 +43,22 @@ class AProyecto404TNFCharacter : public ACharacter
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
+	
+	//Interact Action
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
 
 public:
 	AProyecto404TNFCharacter();
 	
+	UFUNCTION()
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	
+	UFUNCTION()
+	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
+	
+	UFUNCTION()
+	void InteractOtherActor();
 
 protected:
 
@@ -69,5 +81,10 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Overlap, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AActor> OverlapActor;
 };
 

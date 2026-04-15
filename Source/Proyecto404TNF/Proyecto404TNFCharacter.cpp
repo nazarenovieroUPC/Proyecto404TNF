@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include <Interfaces/InteractInterface.h>
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -86,6 +87,9 @@ void AProyecto404TNFCharacter::SetupPlayerInputComponent(UInputComponent* Player
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AProyecto404TNFCharacter::Look);
+		
+		//Interact
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AProyecto404TNFCharacter::InteractOtherActor);
 	}
 	else
 	{
@@ -126,5 +130,25 @@ void AProyecto404TNFCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AProyecto404TNFCharacter::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+	OverlapActor = OtherActor;
+}
+
+void AProyecto404TNFCharacter::NotifyActorEndOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorEndOverlap(OtherActor);
+	OverlapActor = nullptr;
+}
+
+void AProyecto404TNFCharacter::InteractOtherActor()
+{
+	if (OverlapActor && OverlapActor->Implements<UInteractInterface>())
+	{
+		IInteractInterface::Execute_Interact(OverlapActor, this);
 	}
 }
