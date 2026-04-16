@@ -34,5 +34,14 @@ private:
 	TObjectPtr<UBoxComponent> BoxCollision;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootBox", meta = (AllowPrivateAccess = true))
-    	TObjectPtr<UStaticMeshComponent> MeshLootBox;
+	TObjectPtr<UStaticMeshComponent> MeshLootBox;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootBox", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AActor> LootToSpawn;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootBox", meta = (AllowPrivateAccess = true))
+	int32 MinLootAmount = 3;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootBox", meta = (AllowPrivateAccess = true))
+	int32 MaxLootAmount = 7;
 };

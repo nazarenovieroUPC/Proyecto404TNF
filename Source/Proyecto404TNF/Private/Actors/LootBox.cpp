@@ -2,10 +2,6 @@
 
 
 #include "Actors/LootBox.h"
-
-#include <ThirdParty/ShaderConductor/ShaderConductor/External/DirectXShaderCompiler/include/dxc/DXIL/DxilConstants.h>
-
-#include "SkeletonTreeBuilder.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 
@@ -42,6 +38,28 @@ void ALootBox::Tick(float DeltaTime)
 void ALootBox::Interact_Implementation(AActor* Actor)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Se presiono la E");
+
+	if (LootToSpawn != nullptr)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		
+		int32 LootAmount = FMath::RandRange(MinLootAmount, MaxLootAmount);
+		
+		for (int32 i = 0; i < LootAmount; ++i)
+		{
+			float RandomX = FMath::RandRange(-40.f, 40.f);
+			float RandomY = FMath::RandRange(-40.f, 40.f);
+			float RandomZ = FMath::RandRange(20.f, 60.f); 
+            
+			FVector RandomOffset = FVector(RandomX, RandomY, RandomZ);
+			FVector SpawnLocation = GetActorLocation() + RandomOffset;
+			
+			GetWorld()->SpawnActor<AActor>(LootToSpawn, GetActorLocation(),GetActorRotation(), SpawnParams);
+		}	
+	}
+	
+	Destroy();
 }
 
 
