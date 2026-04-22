@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROYECTO404TNF_API UHealthComponent : public UActorComponent
@@ -16,18 +17,15 @@ public:
 	// Sets default values for this component's properties
 	UHealthComponent();
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float Health = 100;
-	
+	//Properties
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float MaxHealth = 100.f;
 	
-	UFUNCTION(BlueprintCallable)
-	void GetDamaged(float Damage);
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float ActualHealth = MaxHealth;
 	
-	UFUNCTION(BlueprintCallable)
-	float GetHealth();
-	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bIsDead = false;
 	
 protected:
 	// Called when the game starts
@@ -36,6 +34,25 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
+	
+	//Getters
+	UFUNCTION(BlueprintCallable)
+	float GetHealth(){return ActualHealth;}
+	
+	UFUNCTION(BlueprintCallable)
+	bool GetIsDead(){return bIsDead;}
+	
+	// Functions
+	UFUNCTION(BlueprintCallable)
+	void HandleDamage(float Damage);
+	
+	UFUNCTION(BlueprintCallable)
+	void HandleHealth(float Heal);
+	
+	UFUNCTION(BlueprintCallable)
+	void HandleDeath();
+	
+	//Delegates
+	UPROPERTY(BlueprintAssignable)
+	FOnDeath OnDeath;
 };

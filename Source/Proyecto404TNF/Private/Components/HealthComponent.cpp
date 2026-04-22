@@ -13,24 +13,25 @@ UHealthComponent::UHealthComponent()
 	// ...
 }
 
-
-
-void UHealthComponent::GetDamaged(float Damage)
+void UHealthComponent::HandleDamage(float Damage)
 {
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
-	if (Health <= 0.f)
-	{
-		TObjectPtr<AActor> Owner = GetOwner();
-		if (Owner){
-			Owner->Destroy();
-		}
-	}
+	ActualHealth = FMath::Clamp(ActualHealth - Damage, 0.f, MaxHealth);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::FromInt(ActualHealth));
+	
+	HandleDeath();
 }
 
-float UHealthComponent::GetHealth()
+void UHealthComponent::HandleHealth(float Heal)
 {
-	Health = FMath::Clamp(Health, 0.f, MaxHealth);
-	return Health;
+	ActualHealth = FMath::Clamp(ActualHealth + Heal, 0.f, MaxHealth);
+}
+
+void UHealthComponent::HandleDeath()
+{
+	if (ActualHealth <= 0.f)
+	{
+		OnDeath.Broadcast();
+	}
 }
 
 // Called when the game starts
@@ -47,7 +48,5 @@ void UHealthComponent::BeginPlay()
 void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 

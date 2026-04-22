@@ -4,6 +4,7 @@
 #include "Actors/DamageItem.h"
 
 #include "Components/HealthComponent.h"
+#include "Interfaces/DamageableInterface.h"
 
 // Sets default values
 ADamageItem::ADamageItem()
@@ -15,13 +16,9 @@ ADamageItem::ADamageItem()
 
 void ADamageItem::DoDamage(AActor* OtherActor)
 {
-	TObjectPtr<UHealthComponent> HealthComp = OtherActor->FindComponentByClass<UHealthComponent>();
+	IDamageableInterface::Execute_TakeDamage(OtherActor, Damage);
 	
-	//UHealthComponent* HealthComp = OtherActor->FindComponentByClass<UHealthComponent>();
-	if (HealthComp)
-	{
-		HealthComp->GetDamaged(Damage);
-	}	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Se llama a la interfaz");
 }
 
 // Called when the game starts or when spawned

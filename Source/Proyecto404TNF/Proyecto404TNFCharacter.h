@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/DamageableInterface.h"
 #include "Logging/LogMacros.h"
 #include "Proyecto404TNFCharacter.generated.h"
 
+class UHealthComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -16,7 +18,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AProyecto404TNFCharacter : public ACharacter
+class AProyecto404TNFCharacter : public ACharacter, public IDamageableInterface
 {
 	GENERATED_BODY()
 
@@ -47,6 +49,9 @@ class AProyecto404TNFCharacter : public ACharacter
 public:
 	AProyecto404TNFCharacter();
 	
+	//Health Component
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TObjectPtr<UHealthComponent> HealthComponent;
 
 protected:
 
@@ -69,5 +74,11 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	
+	UFUNCTION(BlueprintCallable, Category = Health)
+	virtual void TakeDamage_Implementation(float Damage) override;
+	
+	UFUNCTION(BlueprintCallable)
+	virtual void OnDying();
 };
 
