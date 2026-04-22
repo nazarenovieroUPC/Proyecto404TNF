@@ -48,17 +48,34 @@ void ALootBox::Interact_Implementation(AActor* Actor)
 		
 		for (int32 i = 0; i < LootAmount; ++i)
 		{
-			float RandomX = FMath::RandRange(-40.f, 40.f);
-			float RandomY = FMath::RandRange(-40.f, 40.f);
-			float RandomZ = FMath::RandRange(20.f, 60.f); 
+			float RandomX = FMath::RandRange(-10.f, 10.f);
+			float RandomY = FMath::RandRange(-10.f, 10.f);
             
-			FVector RandomOffset = FVector(RandomX, RandomY, RandomZ);
+			FVector RandomOffset = FVector(RandomX, RandomY, 20.f);
 			FVector SpawnLocation = GetActorLocation() + RandomOffset;
 			
-			GetWorld()->SpawnActor<AActor>(LootToSpawn, GetActorLocation(),GetActorRotation(), SpawnParams);
-		}	
+			AActor* SpawnedLoot = GetWorld()->SpawnActor<AActor>(LootToSpawn, SpawnLocation, GetActorRotation(), SpawnParams);
+			
+			if (SpawnedLoot)
+			{
+				UPrimitiveComponent* PhysicsComponent = Cast<UPrimitiveComponent>(SpawnedLoot->GetRootComponent());
+                
+				if (PhysicsComponent && PhysicsComponent->IsSimulatingPhysics())
+				{
+					float DirX = FMath::RandRange(-1.f, 1.f);
+					float DirY = FMath::RandRange(-1.f, 1.f);
+					float DirZ = FMath::RandRange(1.f, 2.f); 
+                    
+					FVector ImpulseDirection = FVector(DirX, DirY, DirZ).GetSafeNormal();
+					
+					float JumpForce = FMath::RandRange(300.f, 600.f); 
+					
+					PhysicsComponent->AddImpulse(ImpulseDirection * JumpForce, NAME_None, true);
+				}
+			
+			}	
+		}
 	}
-	
 	Destroy();
 }
 
