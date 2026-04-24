@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Components/HealthComponent.h"
+#include "Interfaces/InteractInterface.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -64,6 +65,20 @@ void AProyecto404TNFCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+//Overlap Events
+void AProyecto404TNFCharacter::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+	OverlapActor = OtherActor;
+}
+
+void AProyecto404TNFCharacter::NotifyActorEndOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorEndOverlap(OtherActor);
+	OverlapActor = nullptr;
+}
+
+//Damage Interface
 void AProyecto404TNFCharacter::TakeDamage_Implementation(float Damage)
 {
 	IDamageableInterface::TakeDamage_Implementation(Damage);
@@ -77,6 +92,14 @@ void AProyecto404TNFCharacter::TakeDamage_Implementation(float Damage)
 void AProyecto404TNFCharacter::OnDying()
 {
 	Destroy();
+}
+
+void AProyecto404TNFCharacter::InteractOtherActor()
+{
+	if (OverlapActor && OverlapActor->Implements<UInteractInterface>())
+	{
+		IInteractInterface::Execute_Interact(OverlapActor, this);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -105,6 +128,9 @@ void AProyecto404TNFCharacter::SetupPlayerInputComponent(UInputComponent* Player
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AProyecto404TNFCharacter::Look);
+		
+		//Interact
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AProyecto404TNFCharacter::InteractOtherActor);
 	}
 	else
 	{

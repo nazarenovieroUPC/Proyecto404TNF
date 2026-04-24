@@ -13,6 +13,7 @@ UHealthComponent::UHealthComponent()
 	// ...
 }
 
+//FUNCTIONS
 void UHealthComponent::HandleDamage(float Damage)
 {
 	ActualHealth = FMath::Clamp(ActualHealth - Damage, 0.f, MaxHealth);

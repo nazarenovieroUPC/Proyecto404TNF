@@ -45,6 +45,9 @@ class AProyecto404TNFCharacter : public ACharacter, public IDamageableInterface
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
 
 public:
 	AProyecto404TNFCharacter();
@@ -52,6 +55,8 @@ public:
 	//Health Component
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UHealthComponent> HealthComponent;
+	
+	
 
 protected:
 
@@ -60,7 +65,9 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Overlap, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AActor> OverlapActor;
 
 protected:
 	// APawn interface
@@ -69,6 +76,12 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
+	//Overlap Events
+	UFUNCTION()
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	
+	UFUNCTION()
+	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -80,5 +93,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void OnDying();
+	
+	UFUNCTION()
+	void InteractOtherActor();
 };
 
