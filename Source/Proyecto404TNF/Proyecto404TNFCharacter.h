@@ -37,6 +37,10 @@ class AProyecto404TNFCharacter : public ACharacter, public IDamageableInterface
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
+	
+	/** Dash Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* DashAction;
 
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -46,6 +50,7 @@ class AProyecto404TNFCharacter : public ACharacter, public IDamageableInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 	
+	/** Interact Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
 
@@ -56,7 +61,11 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UHealthComponent> HealthComponent;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
+	float DashForce = 1000.0f;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
+	float DashCoolDown = 0.4f;
 
 protected:
 
@@ -66,8 +75,16 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Overlap, meta = (AllowPrivateAccess = "true"))
+	/** Called for Dash input */
+	void Dash(const FInputActionValue& Value);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Overlap", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> OverlapActor;
+	
+	bool bCanDash = true;
+	
+	//TIMERS
+	FTimerHandle DashTimerHandle;
 
 protected:
 	// APawn interface
@@ -82,6 +99,7 @@ protected:
 	
 	UFUNCTION()
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
+	
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -94,7 +112,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnDying();
 	
-	UFUNCTION()
+	UFUNCTION(BLueprintCallable)
 	void InteractOtherActor();
 };
 

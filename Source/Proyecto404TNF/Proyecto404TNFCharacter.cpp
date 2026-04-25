@@ -122,6 +122,9 @@ void AProyecto404TNFCharacter::SetupPlayerInputComponent(UInputComponent* Player
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		
+		//Interact
+		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &AProyecto404TNFCharacter::Dash);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AProyecto404TNFCharacter::Move);
@@ -171,5 +174,19 @@ void AProyecto404TNFCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AProyecto404TNFCharacter::Dash(const FInputActionValue& Value)
+{
+	if (Controller != nullptr && bCanDash)
+	{
+		FVector DashDirection = GetActorForwardVector();
+		
+		LaunchCharacter(DashForce * DashDirection, true, true);
+		
+		bCanDash = false;
+		
+		GetWorldTimerManager().SetTimer(DashTimerHandle, [this](){bCanDash = true;}, DashCoolDown, false);
 	}
 }
