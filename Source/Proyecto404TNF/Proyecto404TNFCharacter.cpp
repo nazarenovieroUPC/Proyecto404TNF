@@ -212,6 +212,7 @@ void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 		
 		AnimationSwordAttack();
 		
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, "CombatComponent");
 		if (CombatComponent){ CombatComponent -> MeleeAtack(Damage); }
 	}
 }
