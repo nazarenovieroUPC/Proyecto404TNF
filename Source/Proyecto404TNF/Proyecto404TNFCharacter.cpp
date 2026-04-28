@@ -10,8 +10,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Components/CombatComponent.h"
 #include "Components/HealthComponent.h"
 #include "Interfaces/InteractInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -57,6 +59,9 @@ AProyecto404TNFCharacter::AProyecto404TNFCharacter()
 	
 	//Set Health Component
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
+	
+	//Set Combat Component
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 }
 
 void AProyecto404TNFCharacter::BeginPlay()
@@ -79,12 +84,12 @@ void AProyecto404TNFCharacter::NotifyActorEndOverlap(AActor* OtherActor)
 }
 
 //Damage Interface
-void AProyecto404TNFCharacter::TakeDamage_Implementation(float Damage)
+void AProyecto404TNFCharacter::TakeDamage_Implementation(float TakeDamage)
 {
-	IDamageableInterface::TakeDamage_Implementation(Damage);
+	IDamageableInterface::TakeDamage_Implementation(TakeDamage);
 	if (HealthComponent)
 	{
-		HealthComponent -> HandleDamage(Damage);
+		HealthComponent -> HandleDamage(TakeDamage);
 		HealthComponent -> OnDeath.AddDynamic(this, &AProyecto404TNFCharacter::OnDying);
 	}
 }
@@ -101,6 +106,11 @@ void AProyecto404TNFCharacter::InteractOtherActor()
 		IInteractInterface::Execute_Interact(OverlapActor, this);
 	}
 }
+
+void AProyecto404TNFCharacter::AnimationSwordAttack_Implementation()
+{
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -134,6 +144,9 @@ void AProyecto404TNFCharacter::SetupPlayerInputComponent(UInputComponent* Player
 		
 		//Interact
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AProyecto404TNFCharacter::InteractOtherActor);
+		
+		//Attack Melee
+		EnhancedInputComponent->BindAction(AttackMeleeAction, ETriggerEvent::Started, this, &AProyecto404TNFCharacter::AttackMelee);
 	}
 	else
 	{
@@ -188,5 +201,17 @@ void AProyecto404TNFCharacter::Dash(const FInputActionValue& Value)
 		bCanDash = false;
 		
 		GetWorldTimerManager().SetTimer(DashTimerHandle, [this](){bCanDash = true;}, DashCoolDown, false);
+	}
+}
+
+//Attack
+void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
+{
+	if (bCanAttack){
+		bCanAttack = false;
+		
+		AnimationSwordAttack();
+		
+		if (CombatComponent){ CombatComponent -> MeleeAtack(Damage); }
 	}
 }

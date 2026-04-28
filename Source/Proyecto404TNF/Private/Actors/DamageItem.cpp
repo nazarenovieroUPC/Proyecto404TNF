@@ -31,7 +31,9 @@ void ADamageItem::BeginPlay()
 void ADamageItem::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
-	DoDamage(OtherActor);
+	if (OtherActor && OtherActor -> Implements<UDamageableInterface>()){
+		DoDamage(OtherActor);
+	}
 }
 
 // Called every frame

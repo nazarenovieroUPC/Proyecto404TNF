@@ -8,6 +8,7 @@
 #include "Logging/LogMacros.h"
 #include "Proyecto404TNFCharacter.generated.h"
 
+class UCombatComponent;
 class UHealthComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -53,6 +54,10 @@ class AProyecto404TNFCharacter : public ACharacter, public IDamageableInterface
 	/** Interact Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
+	
+	/** Attack Melee Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AttackMeleeAction;
 
 public:
 	AProyecto404TNFCharacter();
@@ -61,11 +66,18 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UHealthComponent> HealthComponent;
 	
+	//Combat Component
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TObjectPtr<UCombatComponent> CombatComponent;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
 	float DashForce = 1000.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
 	float DashCoolDown = 0.4f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
+	float Damage = 15;
 
 protected:
 
@@ -78,10 +90,16 @@ protected:
 	/** Called for Dash input */
 	void Dash(const FInputActionValue& Value);
 	
+	/** Called for Attack Melee input */
+	void AttackMelee(const FInputActionValue& Value);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Overlap", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> OverlapActor;
 	
 	bool bCanDash = true;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attack")
+	bool bCanAttack;
 	
 	//TIMERS
 	FTimerHandle DashTimerHandle;
@@ -107,12 +125,16 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	
 	UFUNCTION(BlueprintCallable, Category = Health)
-	virtual void TakeDamage_Implementation(float Damage) override;
+	virtual void TakeDamage_Implementation(float TakeDamage) override;
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void OnDying();
 	
 	UFUNCTION(BLueprintCallable)
 	void InteractOtherActor();
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void AnimationSwordAttack();
+	
 };
 
