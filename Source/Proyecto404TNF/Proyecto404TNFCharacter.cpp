@@ -57,6 +57,9 @@ AProyecto404TNFCharacter::AProyecto404TNFCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 	
+	//set Inventory Component
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
+	
 	//Set Health Component
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	

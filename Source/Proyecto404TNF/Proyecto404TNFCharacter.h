@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/InventoryComponent.h"
 #include "Interfaces/DamageableInterface.h"
 #include "Logging/LogMacros.h"
 #include "Proyecto404TNFCharacter.generated.h"
@@ -101,10 +102,12 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attack")
 	bool bCanAttack;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInventoryComponent> InventoryComponent;
+	
 	//TIMERS
 	FTimerHandle DashTimerHandle;
-
-protected:
+	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
