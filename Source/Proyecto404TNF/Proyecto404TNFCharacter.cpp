@@ -71,6 +71,8 @@ void AProyecto404TNFCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+	
+	if (HealthComponent){ HealthComponent -> OnDeath.AddDynamic(this, &AProyecto404TNFCharacter::OnDying); }
 }
 
 //Overlap Events
@@ -90,11 +92,7 @@ void AProyecto404TNFCharacter::NotifyActorEndOverlap(AActor* OtherActor)
 void AProyecto404TNFCharacter::TakeDamage_Implementation(float TakeDamage)
 {
 	IDamageableInterface::TakeDamage_Implementation(TakeDamage);
-	if (HealthComponent)
-	{
-		HealthComponent -> HandleDamage(TakeDamage);
-		HealthComponent -> OnDeath.AddDynamic(this, &AProyecto404TNFCharacter::OnDying);
-	}
+	if (HealthComponent) { HealthComponent -> HandleDamage(TakeDamage); }
 }
 
 void AProyecto404TNFCharacter::OnDying()
