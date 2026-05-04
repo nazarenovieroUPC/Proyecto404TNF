@@ -17,6 +17,10 @@ class PROYECTO404TNF_API AEnemyBase : public ACharacter, public IDamageableInter
 public:
 	// Sets default values for this character's properties
 	AEnemyBase();
+	
+	//Health Component
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TObjectPtr<UHealthComponent> HealthComponent;
 
 protected:
 	// Called when the game starts or when spawned
@@ -35,7 +39,5 @@ public:
 	virtual bool GetIsDead_Implementation() override;
 	virtual void TakeDamage_Implementation(float Damage) override;
 	
-	//Health Component
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TObjectPtr<UHealthComponent> HealthComponent;
+
 };

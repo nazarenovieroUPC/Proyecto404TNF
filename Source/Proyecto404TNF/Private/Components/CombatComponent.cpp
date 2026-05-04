@@ -3,9 +3,10 @@
 
 #include "Components/CombatComponent.h"
 
+#include "Actors/MagicProjectile.h"
+#include "Components/ArrowComponent.h"
 #include "Interfaces/DamageableInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
-
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -37,7 +38,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
-void UCombatComponent::MeleeAtack(float Damage)
+void UCombatComponent::MeleeAttack(float Damage)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Atacando");
 	
@@ -66,6 +67,23 @@ void UCombatComponent::MeleeAtack(float Damage)
 				IDamageableInterface::Execute_TakeDamage(HitActor, Damage);
 			}
 		}
+	}
+}
+
+void UCombatComponent::MagicAttack(float MagicDamage)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Magic Attack");
+	UArrowComponent* Arrow = GetOwner()->FindComponentByClass<UArrowComponent>();
+	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = GetOwner();
+	SpawnParams.Instigator = GetOwner()->GetInstigator();
+	//SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	AMagicProjectile* MagicProjectiles = GetWorld()->SpawnActor<AMagicProjectile>(MagicProjectile, Arrow->GetComponentLocation(), Arrow->GetComponentRotation(), SpawnParams);
+	if (MagicProjectiles)
+	{
+		MagicProjectiles -> MagicDamage = MagicDamage;
 	}
 }
 

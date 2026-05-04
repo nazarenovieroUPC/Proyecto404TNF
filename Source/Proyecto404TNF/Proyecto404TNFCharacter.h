@@ -71,6 +71,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UCombatComponent> CombatComponent;
 	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TObjectPtr<UArrowComponent> ArrowMagicComponent;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
 	float DashForce = 1000.0f;
 	

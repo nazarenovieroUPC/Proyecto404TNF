@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Actors/MagicProjectile.h"
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
@@ -15,6 +16,9 @@ class PROYECTO404TNF_API UCombatComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UCombatComponent();
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
+	TSubclassOf<AMagicProjectile> MagicProjectile;
 
 protected:
 	// Called when the game starts
@@ -26,5 +30,8 @@ public:
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 	
 	UFUNCTION(BlueprintCallable, Category = Combat)
-	virtual void MeleeAtack(float Damage);
+	virtual void MeleeAttack(float Damage);
+	
+	UFUNCTION(BlueprintCallable, Category = Combat)
+	virtual void MagicAttack(float MagicDamage);
 };
