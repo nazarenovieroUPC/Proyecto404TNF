@@ -8,6 +8,7 @@
 #include "EnemyBase.generated.h"
 
 class UHealthComponent;
+class ULootComponent;
 
 UCLASS()
 class PROYECTO404TNF_API AEnemyBase : public ACharacter, public IDamageableInterface
@@ -22,6 +23,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	bool bHasDroppedLoot;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -36,6 +38,9 @@ public:
 	virtual void TakeDamage_Implementation(float Damage) override;
 	
 	//Health Component
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TObjectPtr<UHealthComponent> HealthComponent;
+	
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	TObjectPtr<ULootComponent> LootComponent;
 };

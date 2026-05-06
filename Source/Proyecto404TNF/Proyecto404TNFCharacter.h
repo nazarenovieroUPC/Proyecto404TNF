@@ -102,6 +102,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attack")
 	bool bCanAttack;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Leveling")
+	class ULevelingComponent* LevelingComponent;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInventoryComponent> InventoryComponent;
 	

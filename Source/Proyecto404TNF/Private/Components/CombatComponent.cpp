@@ -39,7 +39,6 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UCombatComponent::MeleeAtack(float Damage)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Atacando");
 	
 	FVector StartLocation = GetOwner()->GetActorLocation();
 	FVector ForwardVector = GetOwner()->GetActorForwardVector();

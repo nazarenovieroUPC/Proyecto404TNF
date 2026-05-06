@@ -13,6 +13,7 @@
 #include "Components/CombatComponent.h"
 #include "Components/HealthComponent.h"
 #include "Interfaces/InteractInterface.h"
+#include "Components/LevelingComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -56,6 +57,9 @@ AProyecto404TNFCharacter::AProyecto404TNFCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	
+	//Set Leveling Component
+	LevelingComponent = CreateDefaultSubobject<ULevelingComponent>("LevelingComponent");
 	
 	//set Inventory Component
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
@@ -213,7 +217,6 @@ void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 		
 		AnimationSwordAttack();
 		
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, "CombatComponent");
 		if (CombatComponent){ CombatComponent -> MeleeAtack(Damage); }
 	}
 }

@@ -17,7 +17,6 @@ UHealthComponent::UHealthComponent()
 void UHealthComponent::HandleDamage(float Damage)
 {
 	ActualHealth = FMath::Clamp(ActualHealth - Damage, 0.f, MaxHealth);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::FromInt(ActualHealth));
 	
 	HandleDeath();
 }
@@ -31,6 +30,7 @@ void UHealthComponent::HandleDeath()
 {
 	if (ActualHealth <= 0.f)
 	{
+		bIsDead = true;
 		OnDeath.Broadcast();
 	}
 }

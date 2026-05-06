@@ -3,6 +3,7 @@
 
 #include "Actors/Characters/Enemies/EnemyBase.h"
 #include "Components/HealthComponent.h"
+#include "Components/LootComponent.h"
 
 
 // Sets default values
@@ -12,6 +13,9 @@ AEnemyBase::AEnemyBase()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
+	LootComponent = CreateDefaultSubobject<ULootComponent>("LootComponent");
+	
+	bHasDroppedLoot = false;
 }
 
 // Called when the game starts or when spawned
@@ -58,7 +62,21 @@ void AEnemyBase::TakeDamage_Implementation(float Damage)
 	IDamageableInterface::TakeDamage_Implementation(Damage);
 	if (HealthComponent)
 	{
-		HealthComponent -> HandleDamage(Damage);
+		HealthComponent->HandleDamage(Damage);
+		
+		if (HealthComponent->bIsDead && !bHasDroppedLoot)
+		{
+			
+			bHasDroppedLoot = true;
+			
+			if (LootComponent)
+			{
+				
+				LootComponent->DropLoot();
+			}
+			
+			Destroy();
+		}
 	}
 }
 
