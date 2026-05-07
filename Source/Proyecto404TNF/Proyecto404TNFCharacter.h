@@ -59,6 +59,10 @@ class AProyecto404TNFCharacter : public ACharacter, public IDamageableInterface
 	/** Attack Melee Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* AttackMeleeAction;
+	
+	/** Attack Magic Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AttackMagicAction;
 
 public:
 	AProyecto404TNFCharacter();
@@ -81,7 +85,13 @@ public:
 	float DashCoolDown = 0.4f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
-	float Damage = 15;
+	float MeleeDamage = 15.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
+	float MagicDamage = 15.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
+	float MagicCoolDown = 2.f;
 
 protected:
 
@@ -96,6 +106,8 @@ protected:
 	
 	/** Called for Attack Melee input */
 	void AttackMelee(const FInputActionValue& Value);
+	
+	void AttackMagic(const FInputActionValue& Value);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Overlap", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> OverlapActor;

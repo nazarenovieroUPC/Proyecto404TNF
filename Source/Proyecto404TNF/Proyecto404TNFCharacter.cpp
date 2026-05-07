@@ -14,7 +14,6 @@
 #include "Components/HealthComponent.h"
 #include "Interfaces/InteractInterface.h"
 #include "Components/LevelingComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -152,6 +151,9 @@ void AProyecto404TNFCharacter::SetupPlayerInputComponent(UInputComponent* Player
 		
 		//Attack Melee
 		EnhancedInputComponent->BindAction(AttackMeleeAction, ETriggerEvent::Started, this, &AProyecto404TNFCharacter::AttackMelee);
+		
+		//Attack Magic
+		EnhancedInputComponent->BindAction(AttackMagicAction, ETriggerEvent::Started, this, &AProyecto404TNFCharacter::AttackMagic);
 	}
 	else
 	{
@@ -217,6 +219,11 @@ void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 		
 		AnimationSwordAttack();
 		
-		if (CombatComponent){ CombatComponent -> MeleeAtack(Damage); }
+		if (CombatComponent){ CombatComponent -> MeleeAttack(MeleeDamage); }
 	}
+}
+
+void AProyecto404TNFCharacter::AttackMagic(const FInputActionValue& Value)
+{
+	if (CombatComponent){ CombatComponent -> MagicAttack(MagicDamage, MagicCoolDown);}
 }

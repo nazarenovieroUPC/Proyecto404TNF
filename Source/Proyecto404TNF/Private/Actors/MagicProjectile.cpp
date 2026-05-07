@@ -12,6 +12,8 @@ AMagicProjectile::AMagicProjectile()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
+	InitialLifeSpan = 5.f;
+	
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
 	RootComponent = SphereComponent;
 	
@@ -30,8 +32,6 @@ void AMagicProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "DoDamage");
-	
 	if (OtherActor && OtherActor != GetOwner() && OtherActor -> Implements<UDamageableInterface>())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "DoDamage");
@@ -40,6 +40,8 @@ void AMagicProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 	{
 		Destroy();
 	}
+	
+	
 }
 
 // Called every frame

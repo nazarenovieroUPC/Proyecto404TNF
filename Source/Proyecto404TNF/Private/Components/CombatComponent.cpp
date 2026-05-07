@@ -40,7 +40,6 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UCombatComponent::MeleeAttack(float Damage)
 {
-	
 	FVector StartLocation = GetOwner()->GetActorLocation();
 	FVector ForwardVector = GetOwner()->GetActorForwardVector();
 	FVector EndLocation = StartLocation + (ForwardVector * 150);
@@ -69,7 +68,8 @@ void UCombatComponent::MeleeAttack(float Damage)
 	}
 }
 
-void UCombatComponent::MagicAttack(float MagicDamage)
+
+void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 {
 	if (bCanMagicAttack){
 		
@@ -84,7 +84,7 @@ void UCombatComponent::MagicAttack(float MagicDamage)
 		if (MagicProjectiles){MagicProjectiles -> MagicDamage = MagicDamage;}
 		
 		bCanMagicAttack=false;
-		GetOwner()->GetWorldTimerManager().SetTimer(MagicTimerHandle, [this](){bCanMagicAttack = true;}, 0.1f, false);
+		GetOwner()->GetWorldTimerManager().SetTimer(MagicTimerHandle, [this](){bCanMagicAttack = true;}, MagicCoolDown, false);
 	}
 }
 
