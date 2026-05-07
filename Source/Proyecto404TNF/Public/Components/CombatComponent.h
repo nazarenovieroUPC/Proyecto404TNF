@@ -19,10 +19,15 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
 	TSubclassOf<AMagicProjectile> MagicProjectile;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
+	bool bCanMagicAttack = true;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	
+	FTimerHandle MagicTimerHandle;
 
 public:
 	// Called every frame

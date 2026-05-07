@@ -26,6 +26,22 @@ void AMagicProjectile::BeginPlay()
 	
 }
 
+void AMagicProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "DoDamage");
+	
+	if (OtherActor && OtherActor != GetOwner() && OtherActor -> Implements<UDamageableInterface>())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "DoDamage");
+		IDamageableInterface::Execute_TakeDamage(OtherActor, MagicDamage);
+	} else
+	{
+		Destroy();
+	}
+}
+
 // Called every frame
 void AMagicProjectile::Tick(float DeltaTime)
 {
@@ -36,14 +52,10 @@ void AMagicProjectile::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Othe
 	bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-	
-	if (Other && Other != GetOwner() && Other -> Implements<UDamageableInterface>())
-	{
-		IDamageableInterface::Execute_TakeDamage(Other, MagicDamage);
-		Destroy();
-	} else
+	if (Other)
 	{
 		Destroy();
 	}
 }
+
 

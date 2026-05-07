@@ -72,18 +72,20 @@ void UCombatComponent::MeleeAttack(float Damage)
 
 void UCombatComponent::MagicAttack(float MagicDamage)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Magic Attack");
-	UArrowComponent* Arrow = GetOwner()->FindComponentByClass<UArrowComponent>();
-	
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = GetOwner();
-	SpawnParams.Instigator = GetOwner()->GetInstigator();
-	//SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	
-	AMagicProjectile* MagicProjectiles = GetWorld()->SpawnActor<AMagicProjectile>(MagicProjectile, Arrow->GetComponentLocation(), Arrow->GetComponentRotation(), SpawnParams);
-	if (MagicProjectiles)
-	{
-		MagicProjectiles -> MagicDamage = MagicDamage;
+	if (bCanMagicAttack){
+		
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Magic Attack");
+		UArrowComponent* Arrow = GetOwner()->FindComponentByClass<UArrowComponent>();
+		
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = GetOwner();
+		SpawnParams.Instigator = GetOwner()->GetInstigator();
+		
+		AMagicProjectile* MagicProjectiles = GetWorld()->SpawnActor<AMagicProjectile>(MagicProjectile, Arrow->GetComponentLocation(), Arrow->GetComponentRotation(), SpawnParams);
+		if (MagicProjectiles){MagicProjectiles -> MagicDamage = MagicDamage;}
+		
+		bCanMagicAttack=false;
+		GetOwner()->GetWorldTimerManager().SetTimer(MagicTimerHandle, [this](){bCanMagicAttack = true;}, 0.1f, false);
 	}
 }
 
