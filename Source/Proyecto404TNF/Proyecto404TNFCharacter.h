@@ -120,6 +120,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Leveling")
 	class ULevelingComponent* LevelingComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Leveling")
+	class UEquipmentComponent* EquipmentComponent;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInventoryComponent> InventoryComponent;
 	
