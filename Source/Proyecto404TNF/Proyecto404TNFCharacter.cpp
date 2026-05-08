@@ -14,6 +14,7 @@
 #include "Components/HealthComponent.h"
 #include "Interfaces/InteractInterface.h"
 #include "Components/LevelingComponent.h"
+#include "Components/EquipmentComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -62,6 +63,9 @@ AProyecto404TNFCharacter::AProyecto404TNFCharacter()
 	
 	//set Inventory Component
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
+	
+	//Set Equipment Component
+	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>("EquipmentComponent");
 	
 	//Set Health Component
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
