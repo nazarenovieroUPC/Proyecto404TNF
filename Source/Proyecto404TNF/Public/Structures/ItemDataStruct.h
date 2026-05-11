@@ -59,7 +59,7 @@ USTRUCT(BlueprintType)
 	TSubclassOf<AActor> ClaseDelItem;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
-	int32 Cantidad;
+	int32 Cantidad = 0;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData/Equipment")
 	EEquipmentSlot EquipmentSlot;
