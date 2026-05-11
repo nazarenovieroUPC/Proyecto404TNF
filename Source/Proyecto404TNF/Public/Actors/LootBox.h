@@ -5,9 +5,26 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/InteractInterface.h"
+#include "Engine/DataTable.h"
 #include "LootBox.generated.h"
 
 class UBoxComponent;
+class AItemBase;
+
+USTRUCT(BlueprintType)
+struct FLootDropConfig
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AItemBase> ItemClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot", meta = (AllowPrivateAccess = true))
+	FDataTableRowHandle ItemData;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot", meta = (ClampMin = "1"))
+	int32 Amount = 1;
+};
 
 UCLASS()
 class PROYECTO404TNF_API ALootBox : public AActor, public IInteractInterface
@@ -37,11 +54,5 @@ private:
 	TObjectPtr<UStaticMeshComponent> MeshLootBox;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootBox", meta = (AllowPrivateAccess = true))
-	TSubclassOf<AActor> LootToSpawn;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootBox", meta = (AllowPrivateAccess = true))
-	int32 MinLootAmount = 3;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootBox", meta = (AllowPrivateAccess = true))
-	int32 MaxLootAmount = 7;
+	TArray<FLootDropConfig> LootList;
 };

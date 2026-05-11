@@ -4,6 +4,7 @@
 #include "Actors/LootBox.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Actors/ItemBase.h"
 
 // Sets default values
 ALootBox::ALootBox()
@@ -37,45 +38,53 @@ void ALootBox::Tick(float DeltaTime)
 
 void ALootBox::Interact_Implementation(AActor* Actor)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Se presiono la E");
-
-	if (LootToSpawn != nullptr)
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "LootBox Abierta");
+	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	for (const FLootDropConfig &Loot : LootList)
 	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (Loot.ItemClass == nullptr) continue;
 		
-		int32 LootAmount = FMath::RandRange(MinLootAmount, MaxLootAmount);
-		
-		for (int32 i = 0; i < LootAmount; ++i)
+		for (int32 i=0; i< Loot.Amount; ++i)
 		{
-			float RandomX = FMath::RandRange(-10.f, 10.f);
-			float RandomY = FMath::RandRange(-10.f, 10.f);
-            
-			FVector RandomOffset = FVector(RandomX, RandomY, 20.f);
+			float RandomX = FMath::RandRange(20.0f, 20.0f);
+			float RandomY = FMath::RandRange(20.0f, 20.0f);
+			
+			FVector RandomOffset = FVector(RandomX, RandomY, 20.0f);
 			FVector SpawnLocation = GetActorLocation() + RandomOffset;
 			
-			AActor* SpawnedLoot = GetWorld()->SpawnActor<AActor>(LootToSpawn, SpawnLocation, GetActorRotation(), SpawnParams);
+			AItemBase* SpawnedLoot = GetWorld() ->SpawnActor<AItemBase>(Loot.ItemClass, SpawnLocation, GetActorRotation(), SpawnParams);
 			
 			if (SpawnedLoot)
 			{
-				UPrimitiveComponent* PhysicsComponent = Cast<UPrimitiveComponent>(SpawnedLoot->GetRootComponent());
-                
+				if (Loot.ItemData.DataTable != nullptr && !Loot.ItemData.RowName.IsNone())
+				{
+					FItemData* RowInfo = Loot.ItemData.DataTable->FindRow<FItemData>(Loot.ItemData.RowName, TEXT("LootSpawn"));
+					if (RowInfo)
+					{
+						SpawnedLoot->DataDelItem = *RowInfo;
+					}
+				}
+				
+				UPrimitiveComponent* PhysicsComponent= Cast<UPrimitiveComponent>(SpawnedLoot->GetRootComponent());
+				
 				if (PhysicsComponent && PhysicsComponent->IsSimulatingPhysics())
 				{
-					float DirX = FMath::RandRange(-1.f, 1.f);
-					float DirY = FMath::RandRange(-1.f, 1.f);
-					float DirZ = FMath::RandRange(1.f, 2.f); 
-                    
-					FVector ImpulseDirection = FVector(DirX, DirY, DirZ).GetSafeNormal();
+					float DirX = FMath::RandRange(-1.0f, 1.0f);
+					float DirY = FMath::RandRange(-1.0f, 1.0f);
+					float DirZ = FMath::RandRange(-1.0f, 2.0f);
 					
-					float JumpForce = FMath::RandRange(300.f, 600.f); 
+					FVector ImpulseDirection = FVector(DirX, DirY, DirZ).GetSafeNormal();
+					float JumpForce = FMath::RandRange(300.0f, 600.0f);
 					
 					PhysicsComponent->AddImpulse(ImpulseDirection * JumpForce, NAME_None, true);
 				}
-			
-			}	
+			}
 		}
 	}
+	
 	Destroy();
 }
 
