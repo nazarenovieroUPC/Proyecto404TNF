@@ -14,6 +14,7 @@
 #include "Components/HealthComponent.h"
 #include "Interfaces/InteractInterface.h"
 #include "Components/LevelingComponent.h"
+#include "Components/EquipmentComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -63,11 +64,17 @@ AProyecto404TNFCharacter::AProyecto404TNFCharacter()
 	//set Inventory Component
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
 	
+	//Set Equipment Component
+	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>("EquipmentComponent");
+	
 	//Set Health Component
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	
 	//Set Combat Component
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
+	
+	//Set Stats Component
+	StatsComponent = CreateDefaultSubobject<UStatsComponent>("StatsComponent");
 }
 
 void AProyecto404TNFCharacter::BeginPlay()
@@ -211,7 +218,7 @@ void AProyecto404TNFCharacter::Dash(const FInputActionValue& Value)
 	}
 }
 
-//Attack
+//Attacks
 void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 {
 	if (bCanAttack){
@@ -219,11 +226,11 @@ void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 		
 		AnimationSwordAttack();
 		
-		if (CombatComponent){ CombatComponent -> MeleeAttack(MeleeDamage); }
+		if (CombatComponent){ CombatComponent -> MeleeAttack(StatsComponent->StatsBase.MeleeDamage); }
 	}
 }
 
 void AProyecto404TNFCharacter::AttackMagic(const FInputActionValue& Value)
 {
-	if (CombatComponent){ CombatComponent -> MagicAttack(MagicDamage, MagicCoolDown);}
+	if (CombatComponent){ CombatComponent -> MagicAttack(StatsComponent->StatsBase.MagicDamage, StatsComponent->StatsBase.MagicCoolDown);}
 }
