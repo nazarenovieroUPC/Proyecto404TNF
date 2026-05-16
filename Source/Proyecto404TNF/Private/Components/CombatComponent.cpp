@@ -82,6 +82,8 @@ void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 		AMagicProjectile* MagicProjectiles = GetWorld()->SpawnActor<AMagicProjectile>(MagicProjectile, Arrow->GetComponentLocation(), Arrow->GetComponentRotation(), SpawnParams);
 		if (MagicProjectiles){MagicProjectiles -> MagicDamage = MagicDamage;}
 		
+		OnMagicAttack.Broadcast();
+		
 		bCanMagicAttack=false;
 		GetOwner()->GetWorldTimerManager().SetTimer(MagicTimerHandle, [this](){bCanMagicAttack = true;}, MagicCoolDown, false);
 	}
