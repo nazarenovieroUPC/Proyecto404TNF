@@ -60,3 +60,7 @@ void UStatsComponent::ChangeLevelRowID(int32 ID)
 	ChangeSpeedMovement(StatsBase.Speed);
 }
 
+void UStatsComponent::OnBuff()
+{
+}
+
