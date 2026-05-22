@@ -28,7 +28,20 @@ void UInventoryComponent::SwapItems(int32 IndexA, int32 IndexB)
 	InventoryContents[IndexA] = InventoryContents[IndexB];
 	InventoryContents[IndexB] = TempItem;
 	}
-}	
+}
+
+void UInventoryComponent::RemoveItemAtIndex(int32 Index)
+{
+	SetItemAtIndex(Index, FItemData());
+}
+
+void UInventoryComponent::SetItemAtIndex(int32 Index, FItemData ItemIn)
+{
+	if (InventoryContents.IsValidIndex(Index))
+	{
+		InventoryContents[Index] = ItemIn;
+	}
+}
 
 bool UInventoryComponent::AddItem(FItemData NewItem)
 {

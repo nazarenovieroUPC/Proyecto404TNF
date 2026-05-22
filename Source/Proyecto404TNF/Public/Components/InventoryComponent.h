@@ -32,6 +32,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void SwapItems(int32 IndexA, int32 IndexB);
 	
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void RemoveItemAtIndex(int32 Index);
+	
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void SetItemAtIndex(int32 Index, FItemData ItemIn);
 	
 	UFUNCTION( BlueprintCallable, Category = "Inventory" )
 	bool AddItem(FItemData NewItem);

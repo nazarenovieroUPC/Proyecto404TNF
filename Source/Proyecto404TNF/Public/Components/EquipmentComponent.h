@@ -24,6 +24,10 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	FItemData GetEquippedItemData(EEquipmentSlot SlotType);
+	
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
 	bool EquipItem(FItemData ItemToEquip);
 	
@@ -42,6 +46,21 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Equipment/State")
 	TMap<EEquipmentSlot, FItemData> EquippedItems;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
+	FItemData CascoEquipado;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
+	FItemData PecheraEquipada;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
+	FItemData BotasEquipadas;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
+	FItemData ArmaEquipada;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
+	FItemData MascotaEquipada;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Equipment/State")
 	TMap<EItemStatType, float> CurrentStatBonuses;

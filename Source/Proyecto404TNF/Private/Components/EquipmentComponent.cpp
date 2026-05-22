@@ -14,6 +14,14 @@ void UEquipmentComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
+FItemData UEquipmentComponent::GetEquippedItemData(EEquipmentSlot SlotType)
+{
+	if (EquippedItems.Contains(SlotType)){
+		return EquippedItems[SlotType];
+	}
+	return FItemData();
+}
+
 bool UEquipmentComponent::EquipItem(FItemData ItemToEquip)
 {
 	if (ItemToEquip.EquipmentSlot == EEquipmentSlot::None) return false;
