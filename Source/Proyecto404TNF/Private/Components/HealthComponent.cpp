@@ -3,8 +3,6 @@
 
 #include "Components/HealthComponent.h"
 
-#include "Components/StatsComponent.h"
-
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
@@ -23,7 +21,7 @@ void UHealthComponent::HandleDamage(float Damage)
 	HandleDeath();
 }
 
-void UHealthComponent::HandleHeal(float Heal)
+void UHealthComponent::HandleHealth(float Heal)
 {
 	ActualHealth = FMath::Clamp(ActualHealth + Heal, 0.f, MaxHealth);
 }
@@ -41,16 +39,8 @@ void UHealthComponent::HandleDeath()
 void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
 	// ...
-	
-	//Setea la vida si el actor contiene el StatComponent
-	UStatsComponent* StatsComponent = GetOwner()->FindComponentByClass<UStatsComponent>();
-	
-	if (StatsComponent)
-	{
-		MaxHealth = StatsComponent->StatsBase.MaxHealth;
-		ActualHealth = MaxHealth;
-	}
 	
 }
 

@@ -72,9 +72,6 @@ AProyecto404TNFCharacter::AProyecto404TNFCharacter()
 	
 	//Set Combat Component
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
-	
-	//Set Stats Component
-	StatsComponent = CreateDefaultSubobject<UStatsComponent>("StatsComponent");
 }
 
 void AProyecto404TNFCharacter::BeginPlay()
@@ -218,7 +215,7 @@ void AProyecto404TNFCharacter::Dash(const FInputActionValue& Value)
 	}
 }
 
-//Attacks
+//Attack
 void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 {
 	if (bCanAttack){
@@ -226,11 +223,11 @@ void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 		
 		AnimationSwordAttack();
 		
-		if (CombatComponent){ CombatComponent -> MeleeAttack(StatsComponent->StatsBase.MeleeDamage); }
+		if (CombatComponent){ CombatComponent -> MeleeAttack(MeleeDamage); }
 	}
 }
 
 void AProyecto404TNFCharacter::AttackMagic(const FInputActionValue& Value)
 {
-	if (CombatComponent){ CombatComponent -> MagicAttack(StatsComponent->StatsBase.MagicDamage, StatsComponent->StatsBase.MagicCoolDown);}
+	if (CombatComponent){ CombatComponent -> MagicAttack(MagicDamage, MagicCoolDown);}
 }

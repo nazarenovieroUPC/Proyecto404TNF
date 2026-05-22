@@ -17,6 +17,7 @@ ADamageItem::ADamageItem()
 void ADamageItem::DoDamage(AActor* OtherActor)
 {
 	IDamageableInterface::Execute_TakeDamage(OtherActor, Damage);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Se llama a la interfaz");
 }
 
 // Called when the game starts or when spawned

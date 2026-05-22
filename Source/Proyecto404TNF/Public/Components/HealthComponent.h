@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "StatsComponent.h"
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
@@ -48,7 +47,7 @@ public:
 	void HandleDamage(float Damage);
 	
 	UFUNCTION(BlueprintCallable)
-	void HandleHeal(float Heal);
+	void HandleHealth(float Heal);
 	
 	UFUNCTION(BlueprintCallable)
 	void HandleDeath();

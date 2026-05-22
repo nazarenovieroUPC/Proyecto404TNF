@@ -34,6 +34,7 @@ void AMagicProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 	
 	if (OtherActor && OtherActor != GetOwner() && OtherActor -> Implements<UDamageableInterface>())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "DoDamage");
 		IDamageableInterface::Execute_TakeDamage(OtherActor, MagicDamage);
 	} else
 	{
