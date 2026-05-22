@@ -7,6 +7,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMagicAttack);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROYECTO404TNF_API UCombatComponent : public UActorComponent
@@ -22,6 +23,10 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
 	bool bCanMagicAttack = true;
+	
+	//Delegates
+	UPROPERTY(BlueprintAssignable, Category = Combat)
+	FOnMagicAttack OnMagicAttack;
 
 protected:
 	// Called when the game starts

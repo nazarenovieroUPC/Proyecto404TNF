@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/InventoryComponent.h"
+#include "Components/StatsComponent.h"
 #include "Interfaces/DamageableInterface.h"
 #include "Logging/LogMacros.h"
 #include "Proyecto404TNFCharacter.generated.h"
@@ -75,24 +76,33 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UCombatComponent> CombatComponent;
 	
+	//Stats Component
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TObjectPtr<UStatsComponent> StatsComponent;
+	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UArrowComponent> ArrowMagicComponent;
 	
+	//Dash
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
 	float DashForce = 1000.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
 	float DashCoolDown = 0.4f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
-	float MeleeDamage = 15.f;
+	//Stats
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	float MeleeDamage;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
-	float MagicDamage = 15.f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	float MagicDamage;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
-	float MagicCoolDown = 2.f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	float MagicCoolDown;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	float Defense;
+	
 protected:
 
 	/** Called for movement input */
