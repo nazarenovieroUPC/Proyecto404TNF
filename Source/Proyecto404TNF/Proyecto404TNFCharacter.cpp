@@ -83,6 +83,13 @@ void AProyecto404TNFCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	if (HealthComponent){ HealthComponent -> OnDeath.AddDynamic(this, &AProyecto404TNFCharacter::OnDying); }
+	
+	if (StatsComponent && EquipmentComponent)
+	{
+		StatsComponent->InitializeEquipmentLink(EquipmentComponent);
+		
+		StatsComponent->OnTotalStatsUpdated.AddDynamic(this, &AProyecto404TNFCharacter::SyncStatsWithComponents);
+	}
 }
 
 //Overlap Events
@@ -115,6 +122,14 @@ void AProyecto404TNFCharacter::InteractOtherActor()
 	if (OverlapActor && OverlapActor->Implements<UInteractInterface>())
 	{
 		IInteractInterface::Execute_Interact(OverlapActor, this);
+	}
+}
+
+void AProyecto404TNFCharacter::SyncStatsWithComponents()
+{
+	if (HealthComponent && StatsComponent)
+	{
+		HealthComponent->UpdateMaxHealth(StatsComponent->StatsTotal.MaxHealth);
 	}
 }
 
@@ -226,11 +241,11 @@ void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 		
 		AnimationSwordAttack();
 		
-		if (CombatComponent){ CombatComponent -> MeleeAttack(StatsComponent->StatsBase.MeleeDamage); }
+		if (CombatComponent){ CombatComponent -> MeleeAttack(StatsComponent->StatsTotal.MeleeDamage); }
 	}
 }
 
 void AProyecto404TNFCharacter::AttackMagic(const FInputActionValue& Value)
 {
-	if (CombatComponent){ CombatComponent -> MagicAttack(StatsComponent->StatsBase.MagicDamage, StatsComponent->StatsBase.MagicCoolDown);}
+	if (CombatComponent){ CombatComponent -> MagicAttack(StatsComponent->StatsTotal.MagicDamage, StatsComponent->StatsTotal.MagicCoolDown);}
 }

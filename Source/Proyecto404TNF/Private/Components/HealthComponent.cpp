@@ -21,6 +21,7 @@ void UHealthComponent::HandleDamage(float Damage)
 	ActualHealth = FMath::Clamp(ActualHealth - Damage, 0.f, MaxHealth);
 	
 	HandleDeath();
+	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
 void UHealthComponent::HandleHeal(float Heal)
@@ -35,6 +36,16 @@ void UHealthComponent::HandleDeath()
 		bIsDead = true;
 		OnDeath.Broadcast();
 	}
+}
+
+void UHealthComponent::UpdateMaxHealth(float NewMaxHealth)
+{
+	MaxHealth = NewMaxHealth;
+	if (ActualHealth > MaxHealth)
+	{
+		ActualHealth = MaxHealth;
+	}
+	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
 // Called when the game starts

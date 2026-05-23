@@ -8,6 +8,7 @@
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, CurrentHealth, float, MaxHealth);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROYECTO404TNF_API UHealthComponent : public UActorComponent
@@ -27,6 +28,9 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool bIsDead = false;
+	
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void UpdateMaxHealth(float NewMaxHealth);
 	
 protected:
 	// Called when the game starts
@@ -56,4 +60,7 @@ public:
 	//Delegates
 	UPROPERTY(BlueprintAssignable)
 	FOnDeath OnDeath;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Health/Events")
+	FOnHealthChanged OnHealthChanged;
 };

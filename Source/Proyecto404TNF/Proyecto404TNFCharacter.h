@@ -170,5 +170,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void AnimationSwordAttack();
 	
+	UFUNCTION()
+	void SyncStatsWithComponents();
 };
 

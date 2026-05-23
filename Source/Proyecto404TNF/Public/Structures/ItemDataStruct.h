@@ -24,7 +24,9 @@ UENUM(BlueprintType)
 enum class EItemStatType : uint8
 {
 	Health UMETA(DisplayName = "Vida"),
-	Damage UMETA(DisplayName = "Daño"),
+	MeleeDamage UMETA(DisplayName = "Daño Fisico"),
+	MagicDamage UMETA(DisplayName = "Daño Magico"),
+	MagicCoolDown UMETA(DisplayName = "Cooldown de la Magia"),
 	Defense UMETA(DisplayName = "Defensa"),
 	Speed UMETA(DisplayName = "Velocidad")
 };

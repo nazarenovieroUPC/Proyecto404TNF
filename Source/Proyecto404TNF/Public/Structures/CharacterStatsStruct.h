@@ -10,7 +10,7 @@ struct FCharacterStatsRow : public FTableRowBase
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
-	float MaxHealth = 100.f;
+	float MaxHealth = 70.f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
 	float Defense = 10.f;

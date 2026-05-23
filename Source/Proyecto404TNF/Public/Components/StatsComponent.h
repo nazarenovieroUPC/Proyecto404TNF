@@ -7,6 +7,9 @@
 #include "Structures/CharacterStatsStruct.h"
 #include "StatsComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTotalStatsUpdated);
+
+class UEquipmentComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROYECTO404TNF_API UStatsComponent : public UActorComponent
@@ -16,6 +19,13 @@ class PROYECTO404TNF_API UStatsComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UStatsComponent();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	FCharacterStatsRow StatsTotal;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Stats/Events")
+	FOnTotalStatsUpdated OnTotalStatsUpdated;
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Stats")
 	TObjectPtr<UDataTable> StatsDataTable;
 	
@@ -42,4 +52,14 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void OnBuff();
+	
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void InitializeEquipmentLink(UEquipmentComponent* EquipComp);
+	
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void RecalculateTotalStats();
+	
+private:
+	UPROPERTY()
+	TObjectPtr<UEquipmentComponent> CachedEquipment;
 };

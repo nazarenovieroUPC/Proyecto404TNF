@@ -2,7 +2,8 @@
 
 
 #include "Components/StatsComponent.h"
-
+#include "Components/EquipmentComponent.h"
+#include "Structures/ItemDataStruct.h"
 #include "Components/HealthComponent.h"
 #include "Components/LevelingComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -57,10 +58,38 @@ void UStatsComponent::ChangeLevelRowID(int32 ID)
 	FCharacterStatsRow* Row = StatsDataTable -> FindRow<FCharacterStatsRow>(FName(*FString::FromInt(ID)), TEXT(""));
 	if (Row){ StatsBase = *Row; }
 	
-	ChangeSpeedMovement(StatsBase.Speed);
+	RecalculateTotalStats();
 }
 
 void UStatsComponent::OnBuff()
 {
+}
+
+void UStatsComponent::InitializeEquipmentLink(UEquipmentComponent* EquipComp)
+{
+	CachedEquipment = EquipComp;
+	if (CachedEquipment)
+	{
+		CachedEquipment->OnStatsUpdated.AddDynamic(this, &UStatsComponent::RecalculateTotalStats);
+	}
+	RecalculateTotalStats();
+}
+
+void UStatsComponent::RecalculateTotalStats()
+{
+	StatsTotal = StatsBase;
+	if (CachedEquipment)
+	{
+		StatsTotal.MaxHealth += CachedEquipment->GetStatBonus(EItemStatType::Health);
+		StatsTotal.Defense += CachedEquipment->GetStatBonus(EItemStatType::Defense);
+		StatsTotal.MeleeDamage += CachedEquipment->GetStatBonus(EItemStatType::MeleeDamage);
+		StatsTotal.MagicDamage += CachedEquipment->GetStatBonus(EItemStatType::MagicDamage);
+		StatsTotal.Speed += CachedEquipment->GetStatBonus(EItemStatType::Speed);
+		
+		StatsTotal.MagicCoolDown -= CachedEquipment->GetStatBonus(EItemStatType::MagicCoolDown);
+	}
+	ChangeSpeedMovement(StatsTotal.Speed);
+	
+	OnTotalStatsUpdated.Broadcast();
 }
 
