@@ -15,8 +15,8 @@ AEnemyAIController::AEnemyAIController()
 	PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
 	
-	SightConfig->SightRadius = 1000.f;
-	SightConfig->LoseSightRadius = 1200.f;
+	SightConfig->SightRadius = 700.f;
+	SightConfig->LoseSightRadius = 900.f;
 	SightConfig->PeripheralVisionAngleDegrees = 60.f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
@@ -48,10 +48,18 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 
 void AEnemyAIController::OnTargetDetected(AActor* Actor, FAIStimulus Stimulus)
 {
-	if (Stimulus.WasSuccessfullySensed() && Actor != nullptr && Actor->IsA(AProyecto404TNFCharacter::StaticClass()))
-	{
-		GetBlackboardComponent()->SetValueAsVector(FName("TargetLocation"), Actor->GetActorLocation());
-		
-		GetBlackboardComponent()->SetValueAsObject(FName("TargetActor"), Actor);
+	if (Actor != nullptr && Actor->IsA(AProyecto404TNFCharacter::StaticClass())){
+		if (Stimulus.WasSuccessfullySensed())
+		{
+			GetBlackboardComponent()->SetValueAsObject(FName("TargetActor"), Actor);
+			GetBlackboardComponent()->SetValueAsVector(FName("TargetLocation"), Actor->GetActorLocation());
+			
+		}
+		else
+		{
+			GetBlackboardComponent()->ClearValue(FName("TargetActor"));
+			
+			GetBlackboardComponent()->SetValueAsVector(FName("LastLocation"), Stimulus.StimulusLocation);
+		}
 	}
 }

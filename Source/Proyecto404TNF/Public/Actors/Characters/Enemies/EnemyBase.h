@@ -5,19 +5,35 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/DamageableInterface.h"
+#include "Interfaces/EnemyInterface.h"
 #include "EnemyBase.generated.h"
 
+class UStatsComponent;
+class UCombatComponent;
 class UHealthComponent;
 class ULootComponent;
 
 UCLASS()
-class PROYECTO404TNF_API AEnemyBase : public ACharacter, public IDamageableInterface
+class PROYECTO404TNF_API AEnemyBase : public ACharacter, public IDamageableInterface, public IEnemyInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
 	AEnemyBase();
+	
+	//Components
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	TObjectPtr<UHealthComponent> HealthComponent;
+	
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	TObjectPtr<ULootComponent> LootComponent;
+	
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	TObjectPtr<UCombatComponent> CombatComponent;
+	
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	TObjectPtr<UStatsComponent> StatsComponent;
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,10 +53,6 @@ public:
 	virtual bool GetIsDead_Implementation() override;
 	virtual void TakeDamage_Implementation(float Damage) override;
 	
-	//Health Component
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	TObjectPtr<UHealthComponent> HealthComponent;
-	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	TObjectPtr<ULootComponent> LootComponent;
+	//Enemy Interface
+	virtual void EnemyAttack_Implementation() override;
 };

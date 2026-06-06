@@ -17,13 +17,14 @@ UBTTask_Patrol::UBTTask_Patrol()
 EBTNodeResult::Type UBTTask_Patrol::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	const TObjectPtr<AAIController> AIController = OwnerComp.GetAIOwner();
-	//if (!AIController) return EBTNodeResult::Failed;
+	if (!AIController) return EBTNodeResult::Failed;
 	
 	TObjectPtr<APawn> AIPawn = AIController->GetPawn();
+	if (!AIPawn) return EBTNodeResult::Failed;
 	
 	TObjectPtr<UNavigationSystemV1> NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
 	
-	if (!NavSystem || !AIPawn || !AIController) return EBTNodeResult::Failed;
+	if (!NavSystem) return EBTNodeResult::Failed;
 	
 	FVector Origin = AIPawn->GetActorLocation();
 	
