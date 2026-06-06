@@ -4,6 +4,8 @@
 #include "Actors/Characters/Enemies/EnemyBase.h"
 #include "Components/HealthComponent.h"
 #include "Components/LootComponent.h"
+#include "Components/CombatComponent.h"
+#include "Components/StatsComponent.h"
 
 
 // Sets default values
@@ -14,6 +16,8 @@ AEnemyBase::AEnemyBase()
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	LootComponent = CreateDefaultSubobject<ULootComponent>("LootComponent");
+	StatsComponent = CreateDefaultSubobject<UStatsComponent>("StatsComponent");
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 	
 	bHasDroppedLoot = false;
 }
@@ -78,5 +82,12 @@ void AEnemyBase::TakeDamage_Implementation(float Damage)
 			Destroy();
 		}
 	}
+}
+
+void AEnemyBase::EnemyAttack_Implementation()
+{
+	IEnemyInterface::EnemyAttack_Implementation();
+	
+	if (CombatComponent){ CombatComponent -> MeleeAttack(StatsComponent->StatsTotal.MeleeDamage); }
 }
 
