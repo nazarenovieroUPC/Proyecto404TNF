@@ -22,7 +22,7 @@ AEnemyAIController::AEnemyAIController()
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	SightConfig->PointOfViewBackwardOffset = 200.f;
-	SightConfig->NearClippingRadius = 100.f;
+	SightConfig->NearClippingRadius = 300.f;
 
 	PerceptionComponent->ConfigureSense(*SightConfig);
 	PerceptionComponent->SetDominantSense(UAISense_Sight::StaticClass());
