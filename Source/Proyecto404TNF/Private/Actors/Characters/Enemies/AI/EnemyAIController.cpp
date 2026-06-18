@@ -37,11 +37,9 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 	
-	if (BehaviorTree != nullptr){
-		
+	if (BehaviorTree != nullptr)
+	{
 		RunBehaviorTree(BehaviorTree);
-		
-		if (GEngine){GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, "Se cargo el BT");}
 	}
 	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnTargetDetected);
 }
@@ -57,8 +55,6 @@ void AEnemyAIController::OnTargetDetected(AActor* Actor, FAIStimulus Stimulus)
 		}
 		else
 		{
-			GetBlackboardComponent()->ClearValue(FName("TargetActor"));
-			
 			GetBlackboardComponent()->SetValueAsVector(FName("LastLocation"), Stimulus.StimulusLocation);
 		}
 	}

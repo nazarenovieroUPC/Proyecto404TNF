@@ -29,8 +29,4 @@ bool UBTDecorator_TargetDistance::CalculateRawConditionValue(UBehaviorTreeCompon
 	if (!TargetActor) return false;
 	
 	return AIPawn->GetDistanceTo(TargetActor) <= TargetDistance;
-	
-	
-	
-	
 }

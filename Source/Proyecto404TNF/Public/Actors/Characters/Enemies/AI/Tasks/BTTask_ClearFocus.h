@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
-#include "BTTask_Chase.generated.h"
+#include "BTTask_ClearFocus.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROYECTO404TNF_API UBTTask_Chase : public UBTTask_BlackboardBase
+class PROYECTO404TNF_API UBTTask_ClearFocus : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 	
 public:
-	UBTTask_Chase();
+	UBTTask_ClearFocus();
 	
-protected:
+protected: 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };
