@@ -78,7 +78,6 @@ void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 		{
 			MagicProjectiles -> MagicDamage = MagicDamage;
 			
-			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, "Ataquemagico");
 		}
 		
 		OnMagicAttack.Broadcast();
