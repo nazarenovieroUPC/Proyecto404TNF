@@ -6,6 +6,7 @@
 #include "Components/LootComponent.h"
 #include "Components/CombatComponent.h"
 #include "Components/StatsComponent.h"
+#include "Perception/AISenseConfig_Damage.h"
 
 
 // Sets default values
@@ -87,7 +88,5 @@ void AEnemyBase::TakeDamage_Implementation(float Damage)
 void AEnemyBase::EnemyAttack_Implementation()
 {
 	IEnemyInterface::EnemyAttack_Implementation();
-	
-	if (CombatComponent){ CombatComponent -> MeleeAttack(StatsComponent->StatsTotal.MeleeDamage); }
 }
 

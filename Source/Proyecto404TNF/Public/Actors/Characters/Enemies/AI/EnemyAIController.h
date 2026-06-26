@@ -6,6 +6,7 @@
 #include "Runtime/AIModule/Classes/AIController.h"
 #include "EnemyAIController.generated.h"
 
+class UAISenseConfig_Damage;
 struct FAIStimulus;
 class UAISenseConfig_Sight;
 
@@ -23,6 +24,9 @@ public:
 	
 	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Perception")
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
+	
+	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Perception")
+	TObjectPtr<UAISenseConfig_Damage> DamageConfig;
 	
 protected:
 	// Called when the game starts or when spawned

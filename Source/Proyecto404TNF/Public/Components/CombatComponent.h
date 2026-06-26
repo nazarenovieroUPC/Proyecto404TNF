@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actors/MagicProjectile.h"
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+class AProjectileBase;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMagicAttack);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -19,7 +19,7 @@ public:
 	UCombatComponent();
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
-	TSubclassOf<AMagicProjectile> MagicProjectile;
+	TSubclassOf<AProjectileBase> Projectile;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
 	bool bCanMagicAttack = true;
@@ -32,16 +32,17 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
 	FTimerHandle MagicTimerHandle;
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
-	
 	UFUNCTION(BlueprintCallable, Category = Combat)
 	virtual void MeleeAttack(float Damage);
 	
 	UFUNCTION(BlueprintCallable, Category = Combat)
 	virtual void MagicAttack(float MagicDamage, float MagicCoolDown);
+	
+	UFUNCTION(BlueprintCallable, Category = Combat)
+	virtual void RangedAttack(float Damage);
 };

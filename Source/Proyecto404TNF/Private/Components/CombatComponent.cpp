@@ -3,7 +3,7 @@
 
 #include "Components/CombatComponent.h"
 
-#include "Actors/MagicProjectile.h"
+#include "Actors/Projectiles/MagicProjectile.h"
 #include "Components/ArrowComponent.h"
 #include "Interfaces/DamageableInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -11,11 +11,7 @@
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
@@ -23,19 +19,17 @@ UCombatComponent::UCombatComponent()
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
 	
 }
 
-
-// Called every frame
-void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                     FActorComponentTickFunction* ThisTickFunction)
+void UCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	Super::EndPlay(EndPlayReason);
+	
+	if (GetOwner() && GetOwner()->GetWorldTimerManager().IsTimerActive(MagicTimerHandle))
+	{
+		GetOwner()->GetWorldTimerManager().ClearTimer(MagicTimerHandle);
+	}
 }
 
 void UCombatComponent::MeleeAttack(float Damage)
@@ -79,13 +73,30 @@ void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 		SpawnParams.Owner = GetOwner();
 		SpawnParams.Instigator = GetOwner()->GetInstigator();
 		
-		AMagicProjectile* MagicProjectiles = GetWorld()->SpawnActor<AMagicProjectile>(MagicProjectile, Arrow->GetComponentLocation(), Arrow->GetComponentRotation(), SpawnParams);
-		if (MagicProjectiles){MagicProjectiles -> MagicDamage = MagicDamage;}
+		AMagicProjectile* MagicProjectiles = GetWorld()->SpawnActor<AMagicProjectile>(Projectile, Arrow->GetComponentLocation(), Arrow->GetComponentRotation(), SpawnParams);
+		if (MagicProjectiles)
+		{
+			MagicProjectiles -> MagicDamage = MagicDamage;
+			
+			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, "Ataquemagico");
+		}
 		
 		OnMagicAttack.Broadcast();
 		
 		bCanMagicAttack=false;
 		GetOwner()->GetWorldTimerManager().SetTimer(MagicTimerHandle, [this](){bCanMagicAttack = true;}, MagicCoolDown, false);
 	}
+}
+
+void UCombatComponent::RangedAttack(float Damage)
+{
+	UArrowComponent* Arrow = GetOwner()->FindComponentByClass<UArrowComponent>();
+		
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = GetOwner();
+	SpawnParams.Instigator = GetOwner()->GetInstigator();
+		
+	AProjectileBase* BaseProjectiles = GetWorld()->SpawnActor<AProjectileBase>(Projectile, Arrow->GetComponentLocation(), Arrow->GetComponentRotation(), SpawnParams);
+	if (BaseProjectiles){BaseProjectiles -> Damage = Damage;}
 }
 

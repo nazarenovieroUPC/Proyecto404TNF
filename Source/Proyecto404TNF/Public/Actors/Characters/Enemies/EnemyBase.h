@@ -8,6 +8,7 @@
 #include "Interfaces/EnemyInterface.h"
 #include "EnemyBase.generated.h"
 
+class UBehaviorTree;
 class UStatsComponent;
 class UCombatComponent;
 class UHealthComponent;
@@ -22,7 +23,7 @@ public:
 	// Sets default values for this character's properties
 	AEnemyBase();
 	
-	//Components
+	// Components
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TObjectPtr<UHealthComponent> HealthComponent;
 	
@@ -34,6 +35,10 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TObjectPtr<UStatsComponent> StatsComponent;
+	
+	// Varaibles
+	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Behavior Tree")
+	TObjectPtr<UBehaviorTree> EnemyBehaviorTree;
 
 protected:
 	// Called when the game starts or when spawned

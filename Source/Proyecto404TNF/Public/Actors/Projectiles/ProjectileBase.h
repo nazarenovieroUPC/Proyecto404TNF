@@ -3,20 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "MagicProjectile.generated.h"
+#include "ProjectileBase.generated.h"
+
+class USphereComponent;
+class UProjectileMovementComponent;
 
 UCLASS()
-class PROYECTO404TNF_API AMagicProjectile : public AActor
+class PROYECTO404TNF_API AProjectileBase : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	AMagicProjectile();
-	
+	AProjectileBase();
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 	
@@ -27,7 +28,7 @@ public:
 	TObjectPtr<UMeshComponent> MeshComponent;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Stats)
-	float MagicDamage = 0;
+	float Damage = 10;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -37,9 +38,6 @@ protected:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	
 	UFUNCTION()
 	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 };
