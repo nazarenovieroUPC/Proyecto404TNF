@@ -25,7 +25,7 @@ AEnemyAIController::AEnemyAIController()
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	SightConfig->PointOfViewBackwardOffset = 200.f;
-	SightConfig->NearClippingRadius = 300.f;
+	SightConfig->NearClippingRadius = 100.f;
 	SightConfig->SetMaxAge(0.2f);
 	
 	
