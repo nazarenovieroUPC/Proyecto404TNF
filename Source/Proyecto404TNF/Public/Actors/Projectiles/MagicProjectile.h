@@ -16,8 +16,12 @@ public:
 	// Sets default values for this actor's properties
 	AMagicProjectile();
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Stats)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Defaults")
 	float MagicDamage = 0;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Defaults")
+	
+	TObjectPtr<AActor> CharacterInstigator;
 	
 protected:
 	// Called when the game starts or when spawned

@@ -58,7 +58,7 @@ public:
 	void HandleDeath();
 	
 	//Delegates
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Health/Events")
 	FOnDeath OnDeath;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Health/Events")

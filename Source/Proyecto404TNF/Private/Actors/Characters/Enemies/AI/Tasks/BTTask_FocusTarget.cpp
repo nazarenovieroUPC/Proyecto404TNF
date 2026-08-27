@@ -14,13 +14,13 @@ EBTNodeResult::Type UBTTask_FocusTarget::ExecuteTask(UBehaviorTreeComponent& Own
 {
 	const TObjectPtr<AAIController> AIController = OwnerComp.GetAIOwner();
 	if (!AIController) return EBTNodeResult::Failed;
-	
-	TObjectPtr<APawn> AIPawn = AIController->GetPawn();
+
+	const TObjectPtr<APawn> AIPawn = AIController->GetPawn();
 	if (!AIPawn) return EBTNodeResult::Failed;
-	
-	AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKey.SelectedKeyName));
-	if (TargetActor)
+
+	if (AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKey.SelectedKeyName)))
 	{
+		AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
 		return EBTNodeResult::Succeeded;
 	}
 	

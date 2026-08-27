@@ -106,9 +106,9 @@ void AProyecto404TNFCharacter::NotifyActorEndOverlap(AActor* OtherActor)
 }
 
 //Damage Interface
-void AProyecto404TNFCharacter::TakeDamage_Implementation(float TakeDamage)
+void AProyecto404TNFCharacter::TakeDamage_Implementation(float TakeDamage, AActor* DamagerActor)
 {
-	IDamageableInterface::TakeDamage_Implementation(TakeDamage);
+	IDamageableInterface::TakeDamage_Implementation(TakeDamage, DamagerActor);
 	if (HealthComponent) { HealthComponent -> HandleDamage(TakeDamage); }
 }
 

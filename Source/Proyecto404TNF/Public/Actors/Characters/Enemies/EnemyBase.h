@@ -56,8 +56,10 @@ public:
 	virtual float GetActualHealth_Implementation() override;
 	virtual float GetMaxHealth_Implementation() override;
 	virtual bool GetIsDead_Implementation() override;
-	virtual void TakeDamage_Implementation(float Damage) override;
+	virtual void TakeDamage_Implementation(float Damage, AActor* DamagerActor) override;
 	
 	//Enemy Interface
 	virtual void EnemyAttack_Implementation() override;
+	
+	virtual float SetMovementSpeed_Implementation(EMovementSpeed MovementSpeed) override;
 };

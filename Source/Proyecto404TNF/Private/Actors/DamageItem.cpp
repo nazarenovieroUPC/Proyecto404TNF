@@ -16,7 +16,7 @@ ADamageItem::ADamageItem()
 
 void ADamageItem::DoDamage(AActor* OtherActor)
 {
-	IDamageableInterface::Execute_TakeDamage(OtherActor, Damage);
+	IDamageableInterface::Execute_TakeDamage(OtherActor, Damage, this);
 }
 
 // Called when the game starts or when spawned

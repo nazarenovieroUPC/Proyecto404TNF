@@ -2,10 +2,13 @@
 
 
 #include "Actors/Characters/Enemies/EnemyBase.h"
+
+#include "Actors/Characters/Enemies/AI/Enums/EMovementSpeed.h"
 #include "Components/HealthComponent.h"
 #include "Components/LootComponent.h"
 #include "Components/CombatComponent.h"
 #include "Components/StatsComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AISenseConfig_Damage.h"
 
 
@@ -27,7 +30,6 @@ AEnemyBase::AEnemyBase()
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -62,12 +64,14 @@ bool AEnemyBase::GetIsDead_Implementation()
 }
 
 //Interface
-void AEnemyBase::TakeDamage_Implementation(float Damage)
+void AEnemyBase::TakeDamage_Implementation(float Damage, AActor* DamagerActor)
 {
-	IDamageableInterface::TakeDamage_Implementation(Damage);
+	IDamageableInterface::TakeDamage_Implementation(Damage, DamagerActor);
 	if (HealthComponent)
 	{
 		HealthComponent->HandleDamage(Damage);
+		
+		UAISense_Damage::ReportDamageEvent(GetWorld(), this, DamagerActor, Damage, DamagerActor->GetActorLocation(), GetActorLocation());
 		
 		if (HealthComponent->bIsDead && !bHasDroppedLoot)
 		{
@@ -88,5 +92,25 @@ void AEnemyBase::TakeDamage_Implementation(float Damage)
 void AEnemyBase::EnemyAttack_Implementation()
 {
 	IEnemyInterface::EnemyAttack_Implementation();
+}
+
+float AEnemyBase::SetMovementSpeed_Implementation(EMovementSpeed MovementSpeed)
+{
+	switch (MovementSpeed)
+	{
+	case EMovementSpeed::Idle: 
+		GetCharacterMovement()->MaxWalkSpeed = 0;
+		break;
+		
+	case EMovementSpeed::Patrol:
+		GetCharacterMovement()->MaxWalkSpeed = 200;
+		break;
+		
+	case EMovementSpeed::Chase: 
+		GetCharacterMovement()->MaxWalkSpeed = 800;
+		break;
+	}
+	
+	return GetCharacterMovement()->MaxWalkSpeed;
 }
 

@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+class AProyecto404TNFCharacter;
 class AProjectileBase;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMagicAttack);
 

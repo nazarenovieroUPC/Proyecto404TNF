@@ -28,6 +28,9 @@ public:
 	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Perception")
 	TObjectPtr<UAISenseConfig_Damage> DamageConfig;
 	
+	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Target")
+	TObjectPtr<AActor> AttackTarget;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,6 +39,6 @@ public:
 	// Called every frame
 	virtual void OnPossess(APawn* InPawn) override;
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Detection")
 	void OnTargetDetected(AActor* Actor, FAIStimulus Stimulus);
 };

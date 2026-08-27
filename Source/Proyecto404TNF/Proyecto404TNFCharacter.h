@@ -159,7 +159,7 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	
 	UFUNCTION(BlueprintCallable, Category = Health)
-	virtual void TakeDamage_Implementation(float TakeDamage) override;
+	virtual void TakeDamage_Implementation(float TakeDamage, AActor* DamagerActor) override;
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void OnDying();
