@@ -99,15 +99,15 @@ float AEnemyBase::SetMovementSpeed_Implementation(EMovementSpeed MovementSpeed)
 	switch (MovementSpeed)
 	{
 	case EMovementSpeed::Idle: 
-		GetCharacterMovement()->MaxWalkSpeed = 0;
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeedIdle;
 		break;
 		
 	case EMovementSpeed::Patrol:
-		GetCharacterMovement()->MaxWalkSpeed = 200;
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeedPatrol;
 		break;
 		
 	case EMovementSpeed::Chase: 
-		GetCharacterMovement()->MaxWalkSpeed = 800;
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeedChase;
 		break;
 	}
 	
