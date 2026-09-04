@@ -4,6 +4,7 @@
 #include "Actors/LootBox.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Actors/ItemBase.h"
 
 // Sets default values
@@ -11,6 +12,8 @@ ALootBox::ALootBox()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
+	bReplicates = true;
 	
 	BoxCollision= CreateDefaultSubobject<UBoxComponent>("BoxCollision");
 	RootComponent = BoxCollision;
@@ -38,54 +41,70 @@ void ALootBox::Tick(float DeltaTime)
 
 void ALootBox::Interact_Implementation(AActor* Actor)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "LootBox Abierta");
-	
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	
-	for (const FLootDropConfig &Loot : LootList)
+	if (HasAuthority() && !bEstaRota)
 	{
-		if (Loot.ItemClass == nullptr) continue;
+		bEstaRota = true;
 		
-		for (int32 i=0; i< Loot.Amount; ++i)
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+		for (const FLootDropConfig &Loot : LootList)
 		{
-			float RandomX = FMath::RandRange(20.0f, 20.0f);
-			float RandomY = FMath::RandRange(20.0f, 20.0f);
-			
-			FVector RandomOffset = FVector(RandomX, RandomY, 20.0f);
-			FVector SpawnLocation = GetActorLocation() + RandomOffset;
-			
-			AItemBase* SpawnedLoot = GetWorld() ->SpawnActor<AItemBase>(Loot.ItemClass, SpawnLocation, GetActorRotation(), SpawnParams);
-			
-			if (SpawnedLoot)
+			if (Loot.ItemClass == nullptr) continue;
+		
+			for (int32 i=0; i< Loot.Amount; ++i)
 			{
-				if (Loot.ItemData.DataTable != nullptr && !Loot.ItemData.RowName.IsNone())
+				float RandomX = FMath::RandRange(-20.0f, 20.0f);
+				float RandomY = FMath::RandRange(-20.0f, 20.0f);
+			
+				FVector RandomOffset = FVector(RandomX, RandomY, 20.0f);
+				FVector SpawnLocation = GetActorLocation() + RandomOffset;
+			
+				AItemBase* SpawnedLoot = GetWorld() ->SpawnActor<AItemBase>(Loot.ItemClass, SpawnLocation, GetActorRotation(), SpawnParams);
+			
+				if (SpawnedLoot)
 				{
-					FItemData* RowInfo = Loot.ItemData.DataTable->FindRow<FItemData>(Loot.ItemData.RowName, TEXT("LootSpawn"));
-					if (RowInfo)
+					if (Loot.ItemData.DataTable != nullptr && !Loot.ItemData.RowName.IsNone())
 					{
-						SpawnedLoot->DataDelItem = *RowInfo;
+						FItemData* RowInfo = Loot.ItemData.DataTable->FindRow<FItemData>(Loot.ItemData.RowName, TEXT("LootSpawn"));
+						if (RowInfo)
+						{
+							SpawnedLoot->DataDelItem = *RowInfo;
+						}
 					}
-				}
 				
-				UPrimitiveComponent* PhysicsComponent= Cast<UPrimitiveComponent>(SpawnedLoot->GetRootComponent());
+					UPrimitiveComponent* PhysicsComponent= Cast<UPrimitiveComponent>(SpawnedLoot->GetRootComponent());
 				
-				if (PhysicsComponent && PhysicsComponent->IsSimulatingPhysics())
-				{
-					float DirX = FMath::RandRange(-1.0f, 1.0f);
-					float DirY = FMath::RandRange(-1.0f, 1.0f);
-					float DirZ = FMath::RandRange(-1.0f, 2.0f);
+					if (PhysicsComponent && PhysicsComponent->IsSimulatingPhysics())
+					{
+						float DirX = FMath::RandRange(-1.0f, 1.0f);
+						float DirY = FMath::RandRange(-1.0f, 1.0f);
+						float DirZ = FMath::RandRange(-1.0f, 2.0f);
 					
-					FVector ImpulseDirection = FVector(DirX, DirY, DirZ).GetSafeNormal();
-					float JumpForce = FMath::RandRange(300.0f, 600.0f);
+						FVector ImpulseDirection = FVector(DirX, DirY, DirZ).GetSafeNormal();
+						float JumpForce = FMath::RandRange(300.0f, 600.0f);
 					
-					PhysicsComponent->AddImpulse(ImpulseDirection * JumpForce, NAME_None, true);
+						PhysicsComponent->AddImpulse(ImpulseDirection * JumpForce, NAME_None, true);
+					}
 				}
 			}
 		}
+		OnRep_CajaRota();
+		SetLifeSpan(3.0f);
 	}
-	
-	Destroy();
+}
+
+void ALootBox::OnRep_CajaRota()
+{
+	if (bEstaRota)
+	{
+	}
+}
+
+void ALootBox::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ALootBox, bEstaRota);
 }
 
 

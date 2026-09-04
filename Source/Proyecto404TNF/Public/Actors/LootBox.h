@@ -46,6 +46,12 @@ public:
 	UFUNCTION()
 	virtual void Interact_Implementation(AActor* Actor) override;
 	
+	UPROPERTY(ReplicatedUsing = OnRep_CajaRota)
+	bool bEstaRota = false;
+	
+	UFUNCTION()
+	void OnRep_CajaRota();
+	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootBox", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBoxComponent> BoxCollision;

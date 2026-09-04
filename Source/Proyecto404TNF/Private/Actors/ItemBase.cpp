@@ -12,6 +12,9 @@ AItemBase::AItemBase()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
+	bReplicates = true;
+	SetReplicateMovement(true);
+	
 	MeshItem = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshItem"));
 	RootComponent = MeshItem;
 	
@@ -32,7 +35,10 @@ void AItemBase::Interact_Implementation(AActor* Interactor)
 			
 			if (bExito)
 			{
-				Destroy();
+				if (HasAuthority())
+				{
+					Destroy();
+				}
 			}else
 			{
 				UE_LOG(LogTemp, Warning, TEXT("EL inventario esta lleno, no se recogio el item"));

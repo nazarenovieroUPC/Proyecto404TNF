@@ -172,5 +172,11 @@ public:
 	
 	UFUNCTION()
 	void SyncStatsWithComponents();
+	
+	UFUNCTION(Server, Reliable)
+	void ServerRomperCaja(ALootBox* CajaAtacada);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_InteractuarGenerico(AActor* ActorInteractuable);
 };
 

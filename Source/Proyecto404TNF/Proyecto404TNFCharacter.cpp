@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Actors/LootBox.h"
 #include "Components/CombatComponent.h"
 #include "Components/HealthComponent.h"
 #include "Interfaces/InteractInterface.h"
@@ -119,9 +120,30 @@ void AProyecto404TNFCharacter::OnDying()
 
 void AProyecto404TNFCharacter::InteractOtherActor()
 {
-	if (OverlapActor && OverlapActor->Implements<UInteractInterface>())
+	ALootBox* CajaDetectada = Cast<ALootBox>(OverlapActor);
+	
+	if (CajaDetectada)
 	{
-		IInteractInterface::Execute_Interact(OverlapActor, this);
+		if (!HasAuthority())
+		{
+			ServerRomperCaja(CajaDetectada);
+		}
+		else
+		{
+			CajaDetectada->Interact_Implementation(this);
+		}
+	}
+	else if (OverlapActor && OverlapActor->Implements<UInteractInterface>())
+	{
+		
+		if (!HasAuthority())
+		{
+			Server_InteractuarGenerico(OverlapActor);
+		}
+		else
+		{
+			IInteractInterface::Execute_Interact(OverlapActor, this);
+		}
 	}
 }
 
@@ -130,6 +152,22 @@ void AProyecto404TNFCharacter::SyncStatsWithComponents()
 	if (HealthComponent && StatsComponent)
 	{
 		HealthComponent->UpdateMaxHealth(StatsComponent->StatsTotal.MaxHealth);
+	}
+}
+
+void AProyecto404TNFCharacter::Server_InteractuarGenerico_Implementation(AActor* ActorInteractuable)
+{
+	if (ActorInteractuable && ActorInteractuable->Implements<UInteractInterface>())
+	{
+		IInteractInterface::Execute_Interact(ActorInteractuable, this);
+	}	
+}
+
+void AProyecto404TNFCharacter::ServerRomperCaja_Implementation(ALootBox* CajaAtacada)
+{
+	if (CajaAtacada)
+	{
+		CajaAtacada->Interact_Implementation(this);
 	}
 }
 
