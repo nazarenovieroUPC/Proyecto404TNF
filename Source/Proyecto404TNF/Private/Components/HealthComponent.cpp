@@ -2,7 +2,7 @@
 
 
 #include "Components/HealthComponent.h"
-
+#include "Net/UnrealNetwork.h"
 #include "Components/StatsComponent.h"
 
 // Sets default values for this component's properties
@@ -12,12 +12,17 @@ UHealthComponent::UHealthComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	SetIsReplicatedByDefault(true);
 }
 
 //FUNCTIONS
 void UHealthComponent::HandleDamage(float Damage)
 {
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	
 	ActualHealth = FMath::Clamp(ActualHealth - Damage, 0.f, MaxHealth);
 	
 	HandleDeath();
@@ -36,6 +41,11 @@ void UHealthComponent::HandleDeath()
 		bIsDead = true;
 		OnDeath.Broadcast();
 	}
+}
+
+void UHealthComponent::OnRep_ActualHealth()
+{
+	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
 void UHealthComponent::UpdateMaxHealth(float NewMaxHealth)
@@ -72,3 +82,10 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+
+void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(UHealthComponent, ActualHealth);
+}
