@@ -15,6 +15,7 @@ AEnemyHeavyMelee::AEnemyHeavyMelee()
 	PrimaryActorTick.bCanEverTick = false;
 	
 	ChargeHitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("ChargeHitBox"));
+	ChargeHitBox->SetCollisionProfileName(TEXT("OverlapAll"));
 	ChargeHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	ChargeHitBox->SetupAttachment(RootComponent);
@@ -45,6 +46,8 @@ void AEnemyHeavyMelee::StartCharge()
 	ChargeHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	
 	GetCharacterMovement()->MaxWalkSpeed = SpeedCharge;
+	
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 0.0f, 0.0f);
 	
 	GetWorldTimerManager().SetTimer(ChargeTimerHandle, this, &AEnemyHeavyMelee::StopCharge, CooldownCharge, false);
 }
@@ -78,7 +81,7 @@ void AEnemyHeavyMelee::OnChargeHit(UPrimitiveComponent* OverlappedComponent, AAc
 			
 			HitCharacter->LaunchCharacter(LaunchVelocity, true, true);
 			
-			StopCharge();
+			GetWorldTimerManager().SetTimer(ChargeTimerHandle, this, &AEnemyHeavyMelee::StopCharge, CooldownCharge, false);
 		}
 	}
 }
@@ -88,7 +91,7 @@ void AEnemyHeavyMelee::OnWallHit(UPrimitiveComponent* HitComponent, AActor* Othe
 {
 	if (bIsCharging && OtherActor && OtherActor != this && !Hit.GetActor()->Implements<AProyecto404TNFCharacter>())
 	{
-		StopCharge();
+		GetWorldTimerManager().SetTimer(ChargeTimerHandle, this, &AEnemyHeavyMelee::StopCharge, CooldownCharge, false);
 	}
 }
 

@@ -13,6 +13,7 @@ UCLASS()
 class PROYECTO404TNF_API UBTTask_FocusTarget : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
+	
 public:
 	UBTTask_FocusTarget();
 	

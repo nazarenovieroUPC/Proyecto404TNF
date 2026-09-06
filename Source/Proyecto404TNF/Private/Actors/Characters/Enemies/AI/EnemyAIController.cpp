@@ -26,9 +26,9 @@ AEnemyAIController::AEnemyAIController()
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	SightConfig->PointOfViewBackwardOffset = 200.f;
 	SightConfig->NearClippingRadius = 100.f;
-	SightConfig->SetMaxAge(0.2f);
+	SightConfig->SetMaxAge(10.f);
 	
-	DamageConfig->SetMaxAge(5.f);
+	DamageConfig->SetMaxAge(10.f);
 
 	PerceptionComponent->ConfigureSense(*SightConfig);
 	PerceptionComponent->SetDominantSense(UAISense_Sight::StaticClass());
@@ -73,7 +73,7 @@ void AEnemyAIController::OnTargetDetected(AActor* Actor, FAIStimulus Stimulus)
 			{
 				
 				GetBlackboardComponent()->ClearValue(FName("TargetActor"));
-				GetBlackboardComponent()->SetValueAsVector(FName("LastLocation"), Stimulus.StimulusLocation);
+				GetBlackboardComponent()->SetValueAsVector(FName("LastTargetLocation"), Stimulus.StimulusLocation);
 			}
 		}
 	}

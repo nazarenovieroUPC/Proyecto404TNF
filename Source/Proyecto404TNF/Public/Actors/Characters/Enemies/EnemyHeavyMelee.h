@@ -22,7 +22,7 @@ public:
 	
 	//Charge Skill
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Skills")
-	float CooldownCharge = 10.f;
+	float CooldownCharge = 1.f;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Skills")
 	float KnockbackForceCharge = 1000.f;
