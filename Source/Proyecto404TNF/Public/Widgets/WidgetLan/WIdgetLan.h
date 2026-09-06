@@ -29,7 +29,7 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UEditableTextBox> EditableTextBox_DireccionIP;
 	
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Configuracion de Red")
 	TSoftObjectPtr<UWorld> Level;
 	
 	UFUNCTION()
