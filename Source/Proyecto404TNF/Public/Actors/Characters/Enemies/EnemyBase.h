@@ -36,13 +36,23 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TObjectPtr<UStatsComponent> StatsComponent;
 	
-	// Varaibles
+	// Variables
 	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Behavior Tree")
 	TObjectPtr<UBehaviorTree> EnemyBehaviorTree;
-
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	//WalkSpeeds
+	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	int WalkSpeedIdle = 0;
+	
+	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	int WalkSpeedPatrol = 200;
+	
+	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	int WalkSpeedChase = 800;
 
 	bool bHasDroppedLoot;
 public:
@@ -56,8 +66,11 @@ public:
 	virtual float GetActualHealth_Implementation() override;
 	virtual float GetMaxHealth_Implementation() override;
 	virtual bool GetIsDead_Implementation() override;
-	virtual void TakeDamage_Implementation(float Damage) override;
+	
+	virtual void TakeDamage_Implementation(float Damage, AActor* DamagerActor) override;
 	
 	//Enemy Interface
 	virtual void EnemyAttack_Implementation() override;
+	
+	virtual float SetMovementSpeed_Implementation(EMovementSpeed MovementSpeed) override;
 };

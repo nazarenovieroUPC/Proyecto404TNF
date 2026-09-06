@@ -34,5 +34,5 @@ public:
 	
 	//Functions
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void TakeDamage(float Damage);
+	void TakeDamage(float Damage, AActor* DamagerActor);
 };

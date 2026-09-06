@@ -61,7 +61,7 @@ public:
 	void OnRep_ActualHealth();
 	
 	//Delegates
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Health/Events")
 	FOnDeath OnDeath;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Health/Events")

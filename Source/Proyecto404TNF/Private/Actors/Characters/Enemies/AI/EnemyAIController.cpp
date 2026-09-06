@@ -16,7 +16,7 @@ AEnemyAIController::AEnemyAIController()
 {
 	PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	DamageConfig = CreateDefaultSubobject<UAISenseConfig_Damage>("DamageConfig");
+	DamageConfig = CreateDefaultSubobject<UAISenseConfig_Damage>(TEXT("DamageConfig"));
 	
 	SightConfig->SightRadius = 700.f;
 	SightConfig->LoseSightRadius = 1000.f;
@@ -26,17 +26,23 @@ AEnemyAIController::AEnemyAIController()
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	SightConfig->PointOfViewBackwardOffset = 200.f;
 	SightConfig->NearClippingRadius = 100.f;
-	SightConfig->SetMaxAge(0.2f);
+	SightConfig->SetMaxAge(10.f);
 	
-	
+	DamageConfig->SetMaxAge(10.f);
 
 	PerceptionComponent->ConfigureSense(*SightConfig);
 	PerceptionComponent->SetDominantSense(UAISense_Sight::StaticClass());
+	
+	PerceptionComponent->ConfigureSense(*DamageConfig);
+	
+	SetPerceptionComponent(*PerceptionComponent);
 }
 
 void AEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	if (PerceptionComponent) PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnTargetDetected);
 }
 
 void AEnemyAIController::OnPossess(APawn* InPawn)
@@ -44,10 +50,11 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 	
 	AEnemyBase* Enemy = Cast<AEnemyBase>(InPawn);
+	if (Enemy != nullptr)
+	{
+		if (Enemy->EnemyBehaviorTree != nullptr) {RunBehaviorTree(Enemy->EnemyBehaviorTree);}
+	}
 	
-	if (Enemy->EnemyBehaviorTree != nullptr) {RunBehaviorTree(Enemy->EnemyBehaviorTree);}
-	
-	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnTargetDetected);
 }
 
 void AEnemyAIController::OnTargetDetected(AActor* Actor, FAIStimulus Stimulus)
@@ -58,11 +65,16 @@ void AEnemyAIController::OnTargetDetected(AActor* Actor, FAIStimulus Stimulus)
 			GetBlackboardComponent()->SetValueAsObject(FName("TargetActor"), Actor);
 			GetBlackboardComponent()->SetValueAsVector(FName("TargetLocation"), Actor->GetActorLocation());
 			
+			AttackTarget = Actor;
 		}
 		else
 		{
-			GetBlackboardComponent()->ClearValue(FName("TargetActor"));
-			GetBlackboardComponent()->SetValueAsVector(FName("LastLocation"), Stimulus.StimulusLocation);
+			if (Stimulus.Type == UAISense::GetSenseID<UAISense_Sight>())
+			{
+				
+				GetBlackboardComponent()->ClearValue(FName("TargetActor"));
+				GetBlackboardComponent()->SetValueAsVector(FName("LastTargetLocation"), Stimulus.StimulusLocation);
+			}
 		}
 	}
 }

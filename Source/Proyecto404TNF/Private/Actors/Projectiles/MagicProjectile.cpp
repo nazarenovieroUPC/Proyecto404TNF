@@ -25,7 +25,7 @@ void AMagicProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 	
 	if (OtherActor && OtherActor != GetOwner() && OtherActor -> Implements<UDamageableInterface>())
 	{
-		IDamageableInterface::Execute_TakeDamage(OtherActor, MagicDamage);
+		IDamageableInterface::Execute_TakeDamage(OtherActor, MagicDamage, CharacterInstigator);
 	} else
 	{
 		Destroy();

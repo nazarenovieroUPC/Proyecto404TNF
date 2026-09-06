@@ -56,7 +56,7 @@ void UCombatComponent::MeleeAttack(float Damage)
 			AActor* HitActor = Hit.GetActor();
 			if (HitActor && HitActor -> Implements<UDamageableInterface>())
 			{
-				IDamageableInterface::Execute_TakeDamage(HitActor, Damage);
+				IDamageableInterface::Execute_TakeDamage(HitActor, Damage, GetOwner());
 			}
 		}
 	}
@@ -77,7 +77,7 @@ void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 		if (MagicProjectiles)
 		{
 			MagicProjectiles -> MagicDamage = MagicDamage;
-			
+			MagicProjectiles -> CharacterInstigator = GetOwner();
 		}
 		
 		OnMagicAttack.Broadcast();

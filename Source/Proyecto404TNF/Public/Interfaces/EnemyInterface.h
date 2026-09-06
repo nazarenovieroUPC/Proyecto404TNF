@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "EnemyInterface.generated.h"
 
+enum class EMovementSpeed : uint8;
+
 // This class does not need to be modified.
 UINTERFACE()
 class UEnemyInterface : public UInterface
@@ -24,4 +26,7 @@ class PROYECTO404TNF_API IEnemyInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void EnemyAttack();
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	float SetMovementSpeed(EMovementSpeed MovementSpeed);
 };

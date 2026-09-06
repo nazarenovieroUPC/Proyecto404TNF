@@ -38,7 +38,7 @@ void AProjectileBase::NotifyActorBeginOverlap(AActor* OtherActor)
 	
 	if (OtherActor && OtherActor != GetOwner() && OtherActor -> Implements<UDamageableInterface>())
 	{
-		IDamageableInterface::Execute_TakeDamage(OtherActor, Damage);
+		IDamageableInterface::Execute_TakeDamage(OtherActor, Damage, GetOwner());
 	} else
 	{
 		Destroy();
