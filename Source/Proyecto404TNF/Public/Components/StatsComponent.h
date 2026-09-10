@@ -20,7 +20,7 @@ public:
 	// Sets default values for this component's properties
 	UStatsComponent();
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	FCharacterStatsRow StatsTotal;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Stats/Events")
