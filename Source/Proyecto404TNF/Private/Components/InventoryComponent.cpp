@@ -64,6 +64,21 @@ void UInventoryComponent::IncreaseInventorySize(int32 AdditionalSlots)
 	InventoryContents.SetNum(MaxInventorySlots);
 }
 
+bool UInventoryComponent::RemoverItemPorNombre(FText NombreItem)
+{
+	for (int32 i = 0; i < InventoryContents.Num(); i++)
+	{
+		if (InventoryContents[i].Cantidad > 0 && InventoryContents[i].Nombre.EqualTo(NombreItem))
+		{
+			RemoveItemAtIndex(i);
+			UE_LOG(LogTemp, Warning, TEXT("Se entrego el item: %s"), *NombreItem.ToString());
+			return true;
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("No se encontro el item: %s"), *NombreItem.ToString());
+	return false;
+}
+
 
 
 

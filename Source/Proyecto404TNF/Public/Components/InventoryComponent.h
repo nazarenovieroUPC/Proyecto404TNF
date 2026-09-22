@@ -44,6 +44,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void IncreaseInventorySize(int32 AdditionalSlots);
 	
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool RemoverItemPorNombre(FText NombreItem);
+	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<FItemData> InventoryContents;

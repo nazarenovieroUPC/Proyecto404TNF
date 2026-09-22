@@ -19,7 +19,16 @@ public:
 	// Sets default values for this actor's properties
 	ABridgeEvent();
 	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_PuenteConstruido, BlueprintReadOnly, Category = "Mision")
+	bool bPuenteConstruido;
 
+	UFUNCTION()
+	void OnRep_PuenteConstruido();
+	
+	UFUNCTION(BlueprintCallable, Category = "Mision")
+	void ConstruirPuente();
 
 protected:
 	// Called when the game starts or when spawned
