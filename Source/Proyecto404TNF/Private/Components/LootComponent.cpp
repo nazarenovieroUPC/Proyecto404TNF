@@ -29,6 +29,21 @@ void ULootComponent::DropLoot()
 			PlayerLeveling->AddExperience(XPToDrop);
 		}
 	}
+	AActor* DueñoComponente = GetOwner(); 
+	
+	if (DueñoComponente && DueñoComponente->HasAuthority() && ItemsDrop.Num() > 0)
+	{
+		int32 IndiceAleatorio = FMath::RandRange(0, ItemsDrop.Num() - 1);
+		TSubclassOf<AActor> ItemAElegir = ItemsDrop[IndiceAleatorio];
+
+		if (ItemAElegir)
+		{
+			FVector PosicionDrop = DueñoComponente->GetActorLocation() + FVector(0, 0, 50.0f);
+			FRotator RotacionDrop = DueñoComponente->GetActorRotation();
+            
+			GetWorld()->SpawnActor<AActor>(ItemAElegir, PosicionDrop, RotacionDrop);
+		}
+	}
 }
 
 // Called when the game starts

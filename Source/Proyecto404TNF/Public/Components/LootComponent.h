@@ -19,8 +19,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootComponent")
 	float XPToDrop;
 	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootComponent")
-	//TArray<TSubclassOf<class AItemBase>> ItemsDrop;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootComponent")
+	TArray<TSubclassOf<class AItemBase>> ItemsDrop;
 	
 	UFUNCTION(BlueprintCallable, Category = "LootComponent")
 	void DropLoot();
