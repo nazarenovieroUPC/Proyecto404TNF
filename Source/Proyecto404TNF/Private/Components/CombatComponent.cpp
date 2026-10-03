@@ -38,7 +38,7 @@ void UCombatComponent::MeleeAttack(float Damage)
 	FVector ForwardVector = GetOwner()->GetActorForwardVector();
 	FVector EndLocation = StartLocation + (ForwardVector * 150);
 	
-	ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_Visibility);
+	ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
 	
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetOwner());

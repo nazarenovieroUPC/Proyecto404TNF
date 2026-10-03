@@ -12,12 +12,7 @@
 // Sets default values for this component's properties
 UHordeManagerComponent::UHordeManagerComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-	
-	CurrentWaveIndex = 0;
-	EnemiesSpawnedInCurrentWave = 0;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
@@ -25,49 +20,34 @@ UHordeManagerComponent::UHordeManagerComponent()
 void UHordeManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-}
-
-
-// Called every frame
-void UHordeManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                           FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
 void UHordeManagerComponent::StartHordeSystem()
 {
-	if (Waves.Num() > 0)
-	{
-		CurrentWaveIndex = 0;
-		StartWave();
-	}
+	if (Waves.Num() == 0) return;
+	
+	CurrentWaveIndex = 0;
+	EnemiesAlive = 0;
+	bTimeIsUp = false;
+	
+	GetWorld()->GetTimerManager().SetTimer(GlobalTimerHandle, this, &UHordeManagerComponent::TimeLimitReached, TotalSurvivalTime, false);
+	
+	StartWave();
 }
 
 void UHordeManagerComponent::StartWave()
 {
-	if (!Waves.IsValidIndex(CurrentWaveIndex))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("¡Todas las oleadas han sido completadas!"));
-		return;
-	}
-
-	FHordeWave CurrentWave = Waves[CurrentWaveIndex];
+	if (bTimeIsUp) return;
+	
+	int32 SafeWaveIndex = FMath::Min(CurrentWaveIndex, Waves.Num() - 1);
+	
+	FHordeWave CurrentWave = Waves[SafeWaveIndex];
+	
 	EnemiesSpawnedInCurrentWave = 0;
+	EnemiesAlive = 0;
 
 	UE_LOG(LogTemp, Warning, TEXT("Iniciando Oleada %d"), CurrentWaveIndex + 1);
-
-	GetWorld()->GetTimerManager().SetTimer(
-		WaveTimerHandle, 
-		this, 
-		&UHordeManagerComponent::EndWave, 
-		CurrentWave.WaveDuration, 
-		false
-	);
-
+	
 	GetWorld()->GetTimerManager().SetTimer(
 		SpawnTimerHandle, 
 		this, 
@@ -78,21 +58,11 @@ void UHordeManagerComponent::StartWave()
 	);
 }
 
-void UHordeManagerComponent::EndWave()
-{
-	GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
-	GetWorld()->GetTimerManager().ClearTimer(WaveTimerHandle);
-
-	UE_LOG(LogTemp, Warning, TEXT("Oleada %d terminada por tiempo."), CurrentWaveIndex + 1);
-
-	CurrentWaveIndex++;
-
-	StartWave();
-}
-
 void UHordeManagerComponent::SpawnEnemy()
 {
-	FHordeWave CurrentWave = Waves[CurrentWaveIndex];
+	int32 SafeWaveIndex = FMath::Min(CurrentWaveIndex, Waves.Num() - 1);
+	
+	FHordeWave CurrentWave = Waves[SafeWaveIndex];
 	
 	if (EnemiesSpawnedInCurrentWave >= CurrentWave.EnemiesToSpawn)
 	{
@@ -108,23 +78,72 @@ void UHordeManagerComponent::SpawnEnemy()
 		FVector SpawnLocation = SpawnLocationActor->GetActorLocation();
 		FRotator SpawnRotation = SpawnLocationActor->GetActorRotation();
 		
-		APawn* SpawnedEnemy = GetWorld()->SpawnActor<APawn>(CurrentWave.EnemyClass, SpawnLocation, SpawnRotation);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		
-		if (SpawnedEnemy)
+		if (APawn* SpawnedEnemy = GetWorld()->SpawnActor<APawn>(CurrentWave.EnemyClass, SpawnLocation, SpawnRotation, SpawnParams))
 		{
-			AAIController* AIController = Cast<AAIController>(SpawnedEnemy->GetController());
-            
-			if (AIController)
+			EnemiesAlive++;
+			
+			SpawnedEnemy->OnDestroyed.AddDynamic(this, &UHordeManagerComponent::OnEnemyDestroyed);
+			
+			if (AAIController* AIController = Cast<AAIController>(SpawnedEnemy->GetController()))
 			{
 				APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
 				
 				UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
 				
 				if (PlayerPawn && BlackboardComp) BlackboardComp->SetValueAsObject(FName("TargetActor"), PlayerPawn);
-        
-				EnemiesSpawnedInCurrentWave++;
 			}
+			
+			EnemiesSpawnedInCurrentWave++;
 		}
 	}
+}
+
+void UHordeManagerComponent::TimeLimitReached()
+{
+	bTimeIsUp = true;
+	GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+	
+	CheckWaveState();
+}
+
+void UHordeManagerComponent::OnEnemyDestroyed(AActor* DestroyedActor)
+{
+	EnemiesAlive--;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("EnemyDestroyed. Restantes: %d"), EnemiesAlive));
+	CheckWaveState();
+}
+
+void UHordeManagerComponent::CheckWaveState()
+{
+	if (GEngine)
+	{
+		int32 SafeWaveIndex = FMath::Min(CurrentWaveIndex, Waves.Num() - 1);
+		int32 Requeridos = Waves[SafeWaveIndex].EnemiesToSpawn;
+        
+		FString Msg = FString::Printf(TEXT("CheckWave -> Vivos: %d | Spawneados: %d / %d"), EnemiesAlive, EnemiesSpawnedInCurrentWave, Requeridos);
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, Msg);
+	}
+	
+	if (EnemiesAlive <= 0)
+	{
+		if (bTimeIsUp)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Oleada %d terminada"), CurrentWaveIndex + 1);
+			OnHordeVictory.Broadcast();
+		}
+		else
+		{
+			int32 SafeWaveIndex = FMath::Min(CurrentWaveIndex, Waves.Num() - 1);
+			
+			if (EnemiesSpawnedInCurrentWave >= Waves[SafeWaveIndex].EnemiesToSpawn)
+			{
+				CurrentWaveIndex++;
+				StartWave();
+			}
+		}
+	} 
 }
 

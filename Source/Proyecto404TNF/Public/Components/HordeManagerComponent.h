@@ -8,6 +8,8 @@
 
 struct FHordeWave;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHordeVictory);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROYECTO404TNF_API UHordeManagerComponent : public UActorComponent
 {
@@ -16,33 +18,42 @@ class PROYECTO404TNF_API UHordeManagerComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UHordeManagerComponent();
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Horde System|Events")
+	FOnHordeVictory OnHordeVictory;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Horde System")
 	TArray<FHordeWave> Waves;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Horde System")
 	TArray<AActor*> SpawnPoints;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Horde System|Time")
+	float TotalSurvivalTime = 300.f;
 
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
+public:
 	UFUNCTION(BlueprintCallable, Category = "Horde System")
 	void StartHordeSystem();
 
 private:
 	int32 CurrentWaveIndex;
 	int EnemiesSpawnedInCurrentWave;
+	int32 EnemiesAlive;
 	
-	FTimerHandle WaveTimerHandle;
+	bool bTimeIsUp;
+	
 	FTimerHandle SpawnTimerHandle;
+	FTimerHandle GlobalTimerHandle;
 	
 	void StartWave();
-	void EndWave();
 	void SpawnEnemy();
+	void TimeLimitReached();
+	void CheckWaveState();
+	
+	UFUNCTION()
+	void OnEnemyDestroyed(AActor* DestroyedActor);
 };

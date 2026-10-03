@@ -4,6 +4,7 @@
 #include "Actors/Characters/Enemies/EnemyBase.h"
 
 #include "Actors/Characters/Enemies/AI/Enums/EMovementSpeed.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/LootComponent.h"
 #include "Components/CombatComponent.h"
@@ -16,7 +17,7 @@
 AEnemyBase::AEnemyBase()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	LootComponent = CreateDefaultSubobject<ULootComponent>("LootComponent");
@@ -24,6 +25,10 @@ AEnemyBase::AEnemyBase()
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 	
 	bHasDroppedLoot = false;
+	
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
+	
+	GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Ignore);
 }
 
 // Called when the game starts or when spawned
