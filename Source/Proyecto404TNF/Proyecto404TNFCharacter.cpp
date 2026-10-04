@@ -155,6 +155,71 @@ void AProyecto404TNFCharacter::SyncStatsWithComponents()
 	}
 }
 
+void AProyecto404TNFCharacter::RevertirBuffCoop()
+{
+	if (StatsComponent)
+	{
+		StatsComponent->StatsBuff.MaxHealth = 0.0f;
+		StatsComponent->StatsBuff.Defense = 0.0f;
+		StatsComponent->StatsBuff.MeleeDamage = 0.0f;
+		StatsComponent->StatsBuff.MagicDamage = 0.0f;
+		StatsComponent->StatsBuff.Speed = 0.0f;
+		StatsComponent->StatsBuff.MagicCoolDown = 0.0f;
+		
+		StatsComponent->RecalculateTotalStats();
+	}
+	if (IsLocallyControlled() && GEngine) 
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("El buff cooperativo ha expirado."));
+	}
+}
+
+void AProyecto404TNFCharacter::Multicast_RecibirBuffCoop_Implementation(ERolCoop RolAsignado)
+{
+	RolActual = RolAsignado;
+	FString NombreRol = TEXT("");
+	
+	if (StatsComponent)
+	{
+		StatsComponent->StatsBuff.MaxHealth = 0.0f;
+		StatsComponent->StatsBuff.Defense = 0.0f;
+		StatsComponent->StatsBuff.MeleeDamage = 0.0f;
+		StatsComponent->StatsBuff.MagicDamage = 0.0f;
+		StatsComponent->StatsBuff.Speed = 0.0f;
+		StatsComponent->StatsBuff.MagicCoolDown = 0.0f;
+		
+		switch (RolAsignado)
+		{
+		case ERolCoop::Tanque:
+			NombreRol = TEXT("Tanque (+50 Vida)");
+			StatsComponent->StatsBuff.MaxHealth = 50.0f;
+			break;
+		case ERolCoop::Guerrero:
+			NombreRol = TEXT("DPS (+20 Daño)");
+			StatsComponent->StatsBuff.MeleeDamage = 20.0f; 
+			break;
+		case ERolCoop::Mago:
+			NombreRol = TEXT("Soporte (+30 Daño Magico)");
+			StatsComponent->StatsBuff.MagicDamage = 30.0f;
+			break;
+		}
+		StatsComponent->RecalculateTotalStats();
+		
+		if (HasAuthority() && RolAsignado == ERolCoop::Tanque && HealthComponent)
+		{
+			HealthComponent->HandleHeal(50.0f);
+		}
+	}
+	
+	if (IsLocallyControlled() && GEngine)
+	{
+		FString Mensaje = FString::Printf(TEXT("¡Nuevo jugador unido! Tu rol es: %s"), *NombreRol);
+		GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Cyan, Mensaje);
+	}
+	
+	GetWorldTimerManager().SetTimer(TimerRevertirBuff, this, &AProyecto404TNFCharacter::RevertirBuffCoop, 60.0f, false);
+}
+
 void AProyecto404TNFCharacter::Server_InteractuarGenerico_Implementation(AActor* ActorInteractuable)
 {
 	if (ActorInteractuable && ActorInteractuable->Implements<UInteractInterface>())

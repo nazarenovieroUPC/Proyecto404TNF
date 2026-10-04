@@ -10,10 +10,9 @@ void UWidgetMision::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	
-	if (Button_Entregar)
-	{
-		Button_Entregar->OnClicked.AddDynamic(this, &UWidgetMision::OnButtonEntregarClicked);
-	}
+	if (Button_Entregar) Button_Entregar->OnClicked.AddDynamic(this, &UWidgetMision::OnButtonEntregarClicked);
+	if (Button_Aceptar) Button_Aceptar->OnClicked.AddDynamic(this, &UWidgetMision::OnButtonAceptarClicked);
+	if (Button_Cerrar) Button_Cerrar->OnClicked.AddDynamic(this, &UWidgetMision::OnButtonCerrarClicked);
 }
 
 void UWidgetMision::OnButtonEntregarClicked()
@@ -21,17 +20,28 @@ void UWidgetMision::OnButtonEntregarClicked()
 	if (NPCVinculado)
 	{
 		APawn* JugadorPawn = GetOwningPlayerPawn();
-		
-		NPCVinculado->EntregarMateriales(JugadorPawn);
-		
-		RemoveFromParent();
-		
-		APlayerController* PC = GetOwningPlayer();
-		if (PC)
-		{
-			FInputModeGameOnly InputMode;
-			PC->SetInputMode(InputMode);
-			PC->SetShowMouseCursor(false);
-		}
+		NPCVinculado->Server_EntregarMateriales(JugadorPawn); 
+		OnButtonCerrarClicked(); 
+	}
+}
+
+void UWidgetMision::OnButtonAceptarClicked()
+{
+	if (NPCVinculado)
+	{
+		NPCVinculado->Server_AceptarMision();
+		OnButtonCerrarClicked();
+	}
+}
+
+void UWidgetMision::OnButtonCerrarClicked()
+{
+	RemoveFromParent();
+	APlayerController* PC = GetOwningPlayer();
+	if (PC)
+	{
+		FInputModeGameOnly InputMode;
+		PC->SetInputMode(InputMode);
+		PC->SetShowMouseCursor(false);
 	}
 }

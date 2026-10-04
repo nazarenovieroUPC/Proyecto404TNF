@@ -34,6 +34,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
 	FCharacterStatsRow StatsBase;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
+	FCharacterStatsRow StatsBuff;
 
 protected:
 	// Called when the game starts

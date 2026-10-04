@@ -2,10 +2,11 @@
 
 
 #include "Actors/BridgeEvent.h"
-
 #include "Components/BoxComponent.h"
 #include "Components/HordeManagerComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameStates/MisionSystemState.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values
@@ -40,7 +41,7 @@ void ABridgeEvent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 void ABridgeEvent::OnRep_PuenteConstruido()
 {
-	if (bPuenteConstruido)
+	if (bPuenteConstruido && MeshBridge)
 	{
 		MeshBridge->SetVisibility(true);
 		MeshBridge->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -66,6 +67,14 @@ void ABridgeEvent::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (HasAuthority())
+	{
+		AMisionSystemState* GameStateMision = Cast<AMisionSystemState>(UGameplayStatics::GetGameState(this));
+		if (GameStateMision)
+		{
+			GameStateMision->OnMisionCompletada.AddDynamic(this, &ABridgeEvent::ConstruirPuente);
+		}
+	}
 }
 
 // Called every frame

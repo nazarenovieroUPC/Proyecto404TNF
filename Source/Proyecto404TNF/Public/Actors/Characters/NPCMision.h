@@ -20,8 +20,11 @@ public:
 	
 	virtual void Interact_Implementation(AActor* Interactor) override;
 	
-	UFUNCTION(BlueprintCallable, Category = "Mision")
-	void EntregarMateriales(AActor* Jugador);
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Mision")
+	void Server_AceptarMision();
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Mision")
+	void Server_EntregarMateriales(AActor* Jugador);
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mision")
 	TObjectPtr<ABridgeEvent> PuenteVinculado;

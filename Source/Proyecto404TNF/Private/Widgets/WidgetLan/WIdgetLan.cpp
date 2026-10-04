@@ -35,5 +35,8 @@ void UWIdgetLan::OnButtonUnirseClicked()
 	GetOwningPlayer()->SetShowMouseCursor(false);
 	
 	const FString IP = EditableTextBox_DireccionIP->GetText().ToString();
-	UGameplayStatics::OpenLevel(this, *IP);
+	if (!IP.IsEmpty())
+	{
+		GetOwningPlayer()->ClientTravel(IP, ETravelType::TRAVEL_Absolute);
+	}
 }

@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Proyecto404TNFGameMode.generated.h"
 
+
 UCLASS(minimalapi)
 class AProyecto404TNFGameMode : public AGameModeBase
 {
@@ -13,6 +14,13 @@ class AProyecto404TNFGameMode : public AGameModeBase
 
 public:
 	AProyecto404TNFGameMode();
+	
+	virtual void OnPostLogin(AController* NewPlayer) override;
+	
+	virtual void Logout(AController* Exiting) override;
+	
+	UFUNCTION()
+	void AsignarRolesCoop();
 };
 
 

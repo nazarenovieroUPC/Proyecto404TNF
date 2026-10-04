@@ -3,6 +3,7 @@
 
 #include "Components/LootComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Actors/ItemBase.h"
 #include "Components/LevelingComponent.h"
 #include "GameFramework/Character.h"
 
@@ -34,14 +35,14 @@ void ULootComponent::DropLoot()
 	if (DueñoComponente && DueñoComponente->HasAuthority() && ItemsDrop.Num() > 0)
 	{
 		int32 IndiceAleatorio = FMath::RandRange(0, ItemsDrop.Num() - 1);
-		TSubclassOf<AActor> ItemAElegir = ItemsDrop[IndiceAleatorio];
+		TSubclassOf<AItemBase> ItemAElegir = ItemsDrop[IndiceAleatorio];
 
 		if (ItemAElegir)
 		{
 			FVector PosicionDrop = DueñoComponente->GetActorLocation() + FVector(0, 0, 50.0f);
 			FRotator RotacionDrop = DueñoComponente->GetActorRotation();
             
-			GetWorld()->SpawnActor<AActor>(ItemAElegir, PosicionDrop, RotacionDrop);
+			GetWorld()->SpawnActor<AItemBase>(ItemAElegir, PosicionDrop, RotacionDrop);
 		}
 	}
 }

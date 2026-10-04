@@ -78,6 +78,14 @@ void UStatsComponent::InitializeEquipmentLink(UEquipmentComponent* EquipComp)
 void UStatsComponent::RecalculateTotalStats()
 {
 	StatsTotal = StatsBase;
+	
+	StatsTotal.MaxHealth += StatsBuff.MaxHealth;
+	StatsTotal.Defense += StatsBuff.Defense;
+	StatsTotal.MeleeDamage += StatsBuff.MeleeDamage;
+	StatsTotal.MagicDamage += StatsBuff.MagicDamage;
+	StatsTotal.Speed += StatsBuff.Speed;
+	StatsTotal.MagicCoolDown -= StatsBuff.MagicCoolDown;
+	
 	if (CachedEquipment)
 	{
 		StatsTotal.MaxHealth += CachedEquipment->GetStatBonus(EItemStatType::Health);

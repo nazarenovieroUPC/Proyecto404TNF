@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Proyecto404TNFGameMode.h"
+#include "Actors/LootBox.h"
 #include "GameFramework/Character.h"
 #include "Components/InventoryComponent.h"
 #include "Components/StatsComponent.h"
@@ -19,6 +21,14 @@ class UInputAction;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+
+UENUM(BlueprintType)
+enum class ERolCoop : uint8
+{
+	Tanque UMETA(DisplayName = "Tanque"),
+	Guerrero UMETA(DisplayName = "Guerrero"),
+	Mago UMETA(DisplayName = "Mago")
+};
 
 UCLASS(config=Game)
 class AProyecto404TNFCharacter : public ACharacter, public IDamageableInterface
@@ -178,5 +188,17 @@ public:
 	
 	UFUNCTION(Server, Reliable)
 	void Server_InteractuarGenerico(AActor* ActorInteractuable);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_RecibirBuffCoop(ERolCoop RolAsignado);
+	
+	UFUNCTION()
+	void RevertirBuffCoop();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coop")
+	ERolCoop RolActual;
+	
+private:
+	FTimerHandle TimerRevertirBuff;
 };
 

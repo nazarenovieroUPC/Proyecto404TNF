@@ -45,14 +45,19 @@ void ANPCMision::Interact_Implementation(AActor* Interactor)
 	}
 }
 
-void ANPCMision::EntregarMateriales(AActor* Jugador)
+void ANPCMision::Server_EntregarMateriales_Implementation(AActor* Jugador)
 {
-	if (!HasAuthority() || !Jugador) return;
-	
-	UInventoryComponent* Inventario = Jugador->FindComponentByClass<UInventoryComponent>();
 	AMisionSystemState* GameStateMision = Cast<AMisionSystemState>(UGameplayStatics::GetGameState(this));
+	
+	if (!GameStateMision || !GameStateMision->bMisionActiva)
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("La misión aún no ha sido aceptada."));
+		return;
+	}
 
-	if (Inventario && GameStateMision)
+	UInventoryComponent* Inventario = Jugador->FindComponentByClass<UInventoryComponent>();
+
+	if (Inventario)
 	{
 		int32 MaderasEntregadas = 0;
 		
@@ -61,28 +66,20 @@ void ANPCMision::EntregarMateriales(AActor* Jugador)
 			GameStateMision->AgregarItemMision();
 			MaderasEntregadas++;
 		}
-		if (MaderasEntregadas > 0)
-		{
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Entregaste %d de Madera"), MaderasEntregadas));
-			
-			if (GameStateMision->ItemsRecolectados >= GameStateMision->ItemsNecesarios)
-			{
-				if (PuenteVinculado)
-				{
-					PuenteVinculado->ConstruirPuente();
-				}
-				else
-				{
-					UE_LOG(LogTemp, Error, TEXT("ERROR: El NPC no tiene un puente asignado en sus variables."));
-				}
-			}
-		}
-		else
-		{
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No tenes madera en el inventario."));
-		}
+	}
+}
+
+void ANPCMision::Server_AceptarMision_Implementation()
+{
+	AMisionSystemState* GameStateMision = Cast<AMisionSystemState>(UGameplayStatics::GetGameState(this));
+    
+	// Si la mision no estaba activa, la activamos para todos
+	if (GameStateMision && !GameStateMision->bMisionActiva)
+	{
+		GameStateMision->bMisionActiva = true;
+        
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("¡LA MISIÓN HA COMENZADO PARA TODOS!"));
 	}
 }
 

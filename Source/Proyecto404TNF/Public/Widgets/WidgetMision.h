@@ -24,6 +24,18 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Entregar;
 	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_Aceptar;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_Cerrar;
+	
 	UFUNCTION()
 	void OnButtonEntregarClicked();
+	
+	UFUNCTION()
+	void OnButtonAceptarClicked();
+
+	UFUNCTION()
+	void OnButtonCerrarClicked();
 };

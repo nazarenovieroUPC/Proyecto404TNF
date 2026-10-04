@@ -8,6 +8,7 @@ AMisionSystemState::AMisionSystemState()
 {
 	ItemsRecolectados = 0;
 	ItemsNecesarios = 10;
+	bMisionActiva = false;
 }
 
 void AMisionSystemState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -15,6 +16,7 @@ void AMisionSystemState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(AMisionSystemState, ItemsRecolectados);
+	DOREPLIFETIME(AMisionSystemState, bMisionActiva);
 }
 
 void AMisionSystemState::AgregarItemMision()
@@ -32,6 +34,7 @@ void AMisionSystemState::AgregarItemMision()
 		{
 			if (GEngine)
 			{
+				OnMisionCompletada.Broadcast();
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("MISION COMPLETADA: Hora de armar el puente!"));
 			}
 		}
