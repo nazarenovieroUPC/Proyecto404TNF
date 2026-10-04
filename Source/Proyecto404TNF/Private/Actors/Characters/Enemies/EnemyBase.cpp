@@ -19,6 +19,8 @@ AEnemyBase::AEnemyBase()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
+	SetReplicates(true);
+	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	LootComponent = CreateDefaultSubobject<ULootComponent>("LootComponent");
 	StatsComponent = CreateDefaultSubobject<UStatsComponent>("StatsComponent");
@@ -72,6 +74,9 @@ bool AEnemyBase::GetIsDead_Implementation()
 void AEnemyBase::TakeDamage_Implementation(float Damage, AActor* DamagerActor)
 {
 	IDamageableInterface::TakeDamage_Implementation(Damage, DamagerActor);
+	
+	if (!HasAuthority()) return;
+	
 	if (HealthComponent)
 	{
 		HealthComponent->HandleDamage(Damage);

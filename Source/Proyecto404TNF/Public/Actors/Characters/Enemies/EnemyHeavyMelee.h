@@ -30,12 +30,32 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Skills")
 	float SpeedCharge = 1200.f;
 	
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_IsCharging, Category = "Skills")
 	bool bIsCharging = false;
+	
+	//Stun
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_IsStuned, Category = "Stun")
+	bool bIsStuned = false;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Stun")
+	float StunDuration = 2.5f;
+	
+	//Timers
 	FTimerHandle ChargeTimerHandle;
+	
+	FTimerHandle StunTimerHandle;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	UFUNCTION()
+	void OnRep_IsCharging();
+	
+	UFUNCTION()
+	void OnRep_IsStuned();
 
 public:
 	// Called every frame
@@ -45,6 +65,10 @@ public:
 	void StartCharge();
 	
 	void StopCharge();
+	
+	void StunEnemy();
+	
+	void RecoverFromStun();
 	
 	UFUNCTION(BlueprintCallable, Category = "Skills")
 	void OnChargeHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 

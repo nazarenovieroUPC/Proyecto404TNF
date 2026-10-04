@@ -31,7 +31,11 @@ void UHealthComponent::HandleDamage(float Damage)
 
 void UHealthComponent::HandleHeal(float Heal)
 {
+	if (!GetOwner()->HasAuthority()) return;
+	
 	ActualHealth = FMath::Clamp(ActualHealth + Heal, 0.f, MaxHealth);
+	
+	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
 void UHealthComponent::HandleDeath()
@@ -48,13 +52,22 @@ void UHealthComponent::OnRep_ActualHealth()
 	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
+void UHealthComponent::OnRep_IsDead()
+{
+	if (bIsDead)
+	{
+		OnDeath.Broadcast();
+	}
+}
+
 void UHealthComponent::UpdateMaxHealth(float NewMaxHealth)
 {
+	if (!GetOwner()->HasAuthority()) return;
+	
 	MaxHealth = NewMaxHealth;
-	if (ActualHealth > MaxHealth)
-	{
-		ActualHealth = MaxHealth;
-	}
+	
+	if (ActualHealth > MaxHealth) ActualHealth = MaxHealth;
+	
 	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
@@ -65,14 +78,15 @@ void UHealthComponent::BeginPlay()
 	// ...
 	
 	//Setea la vida si el actor contiene el StatComponent
-	UStatsComponent* StatsComponent = GetOwner()->FindComponentByClass<UStatsComponent>();
+	if (GetOwner()->HasAuthority()){
+		UStatsComponent* StatsComponent = GetOwner()->FindComponentByClass<UStatsComponent>();
 	
-	if (StatsComponent)
-	{
-		MaxHealth = StatsComponent->StatsBase.MaxHealth;
-		ActualHealth = MaxHealth;
+		if (StatsComponent)
+		{
+			MaxHealth = StatsComponent->StatsBase.MaxHealth;
+			ActualHealth = MaxHealth;
+		}
 	}
-	
 }
 
 
@@ -87,5 +101,7 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
+	DOREPLIFETIME(UHealthComponent, MaxHealth);
 	DOREPLIFETIME(UHealthComponent, ActualHealth);
+	DOREPLIFETIME(UHealthComponent, bIsDead);
 }

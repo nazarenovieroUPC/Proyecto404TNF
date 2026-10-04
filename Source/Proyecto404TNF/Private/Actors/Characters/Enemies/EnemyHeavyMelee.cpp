@@ -3,8 +3,11 @@
 
 #include "Actors/Characters/Enemies/EnemyHeavyMelee.h"
 
+#include "AIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Proyecto404TNF/Proyecto404TNFCharacter.h"
 
 
@@ -29,6 +32,14 @@ void AEnemyHeavyMelee::BeginPlay()
 	ChargeHitBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemyHeavyMelee::OnChargeHit);
 	
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AEnemyHeavyMelee::OnWallHit);
+}
+
+void AEnemyHeavyMelee::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AEnemyHeavyMelee, bIsCharging)
+	DOREPLIFETIME(AEnemyHeavyMelee, bIsStuned)
 }
 
 // Called every frame
@@ -63,9 +74,36 @@ void AEnemyHeavyMelee::StopCharge()
 	GetWorldTimerManager().ClearTimer(ChargeTimerHandle);
 }
 
-void AEnemyHeavyMelee::OnChargeHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AEnemyHeavyMelee::StunEnemy()
 {
+	if (!HasAuthority()) return;
+	
+	StopCharge();
+	bIsStuned = true;
+	GetCharacterMovement()->StopMovementImmediately();
+	
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if (AIC && AIC->GetBlackboardComponent())
+	{
+		AIC->GetBlackboardComponent()->SetValueAsBool(FName("IsStunned"), true);
+	}
+	
+	GetWorldTimerManager().SetTimer(StunTimerHandle, this, &AEnemyHeavyMelee::RecoverFromStun, StunDuration, false);
+}
+
+void AEnemyHeavyMelee::RecoverFromStun()
+{
+	if (!HasAuthority()) return;
+	
+	bIsStuned = false;
+	
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeedChase;
+}
+
+void AEnemyHeavyMelee::OnChargeHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!HasAuthority()) return;
 	
 	if (bIsCharging && OtherActor && OtherActor != this)
 	{
@@ -81,7 +119,7 @@ void AEnemyHeavyMelee::OnChargeHit(UPrimitiveComponent* OverlappedComponent, AAc
 			
 			HitCharacter->LaunchCharacter(LaunchVelocity, true, true);
 			
-			GetWorldTimerManager().SetTimer(ChargeTimerHandle, this, &AEnemyHeavyMelee::StopCharge, CooldownCharge, false);
+			StopCharge();
 		}
 	}
 }
@@ -89,9 +127,11 @@ void AEnemyHeavyMelee::OnChargeHit(UPrimitiveComponent* OverlappedComponent, AAc
 void AEnemyHeavyMelee::OnWallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (!HasAuthority()) return;
+	
 	if (bIsCharging && OtherActor && OtherActor != this && !Hit.GetActor()->Implements<AProyecto404TNFCharacter>())
 	{
-		GetWorldTimerManager().SetTimer(ChargeTimerHandle, this, &AEnemyHeavyMelee::StopCharge, CooldownCharge, false);
+		StunEnemy();
 	}
 }
 
@@ -104,5 +144,22 @@ void AEnemyHeavyMelee::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void AEnemyHeavyMelee::EnemyAttack_Implementation()
 {
 	StartCharge();
+}
+
+//RPCs
+void AEnemyHeavyMelee::OnRep_IsCharging()
+{
+	if (bIsCharging)
+	{
+		//Para las animaciones futuras del jabali.
+	}	
+}
+
+void AEnemyHeavyMelee::OnRep_IsStuned()
+{
+	if (bIsStuned)
+	{
+		//futuras anims.
+	}
 }
 

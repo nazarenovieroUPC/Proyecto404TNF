@@ -36,6 +36,16 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	FTimerHandle MagicTimerHandle;
+	
+	//RPCs
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_MeleeAttack(float Damage);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_MagicAttack(float MagicDamage, float MagicCoolDown);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_RangedAttack(float Damage);
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Combat)
