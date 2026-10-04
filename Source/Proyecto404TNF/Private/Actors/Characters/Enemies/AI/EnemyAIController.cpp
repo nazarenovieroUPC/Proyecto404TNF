@@ -19,16 +19,16 @@ AEnemyAIController::AEnemyAIController()
 	DamageConfig = CreateDefaultSubobject<UAISenseConfig_Damage>(TEXT("DamageConfig"));
 	
 	SightConfig->SightRadius = 700.f;
-	SightConfig->LoseSightRadius = 1000.f;
-	SightConfig->PeripheralVisionAngleDegrees = 60.f;
+	SightConfig->LoseSightRadius = 1500.f;
+	SightConfig->PeripheralVisionAngleDegrees = 75.f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	SightConfig->PointOfViewBackwardOffset = 200.f;
 	SightConfig->NearClippingRadius = 100.f;
-	SightConfig->SetMaxAge(10.f);
+	SightConfig->SetMaxAge(15.f);
 	
-	DamageConfig->SetMaxAge(10.f);
+	DamageConfig->SetMaxAge(15.f);
 
 	PerceptionComponent->ConfigureSense(*SightConfig);
 	PerceptionComponent->SetDominantSense(UAISense_Sight::StaticClass());
