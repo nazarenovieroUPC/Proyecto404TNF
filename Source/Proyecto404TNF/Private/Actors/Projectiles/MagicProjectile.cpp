@@ -10,6 +10,10 @@
 AMagicProjectile::AMagicProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	
+	//Replication
+	SetReplicates(true);
+	SetReplicatingMovement(true);
 }
 
 // Called when the game starts or when spawned

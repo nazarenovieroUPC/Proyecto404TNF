@@ -18,7 +18,4 @@ struct FHordeWave
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Horde Definition")
 	float SpawnInterval = 2.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Horde Definition")
-	float WaveDuration = 60.0f; 
 };

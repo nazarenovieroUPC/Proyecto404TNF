@@ -20,13 +20,13 @@ public:
 	UHealthComponent();
 	
 	//Properties
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere, Category = "Health")
 	float MaxHealth = 100.f;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_ActualHealth, BlueprintReadWrite, EditAnywhere, Category = "Health")
 	float ActualHealth = MaxHealth;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+	UPROPERTY(ReplicatedUsing = OnRep_IsDead ,BlueprintReadWrite, EditAnywhere, Category = "Health")
 	bool bIsDead = false;
 	
 	UFUNCTION(BlueprintCallable, Category = "Health")
@@ -59,6 +59,9 @@ public:
 	
 	UFUNCTION()
 	void OnRep_ActualHealth();
+	
+	UFUNCTION()
+	void OnRep_IsDead();
 	
 	//Delegates
 	UPROPERTY(BlueprintAssignable, Category = "Health/Events")

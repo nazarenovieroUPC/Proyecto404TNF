@@ -34,11 +34,17 @@ void UCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UCombatComponent::MeleeAttack(float Damage)
 {
+	if (!GetOwner()->HasAuthority())
+	{
+		Server_MeleeAttack(Damage);
+		return;
+	}
+	
 	FVector StartLocation = GetOwner()->GetActorLocation();
 	FVector ForwardVector = GetOwner()->GetActorForwardVector();
 	FVector EndLocation = StartLocation + (ForwardVector * 150);
 	
-	ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_Visibility);
+	ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
 	
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetOwner());
@@ -65,6 +71,12 @@ void UCombatComponent::MeleeAttack(float Damage)
 
 void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 {
+	if (!GetOwner()->HasAuthority())
+	{
+		Server_MagicAttack(MagicDamage, MagicCoolDown);
+		return;
+	}
+	
 	if (bCanMagicAttack){
 		
 		UArrowComponent* Arrow = GetOwner()->FindComponentByClass<UArrowComponent>();
@@ -89,6 +101,12 @@ void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 
 void UCombatComponent::RangedAttack(float Damage)
 {
+	if (!GetOwner()->HasAuthority())
+	{
+		Server_RangedAttack(Damage);
+		return;
+	}
+	
 	UArrowComponent* Arrow = GetOwner()->FindComponentByClass<UArrowComponent>();
 		
 	FActorSpawnParameters SpawnParams;
@@ -99,3 +117,22 @@ void UCombatComponent::RangedAttack(float Damage)
 	if (BaseProjectiles){BaseProjectiles -> Damage = Damage;}
 }
 
+//RPCs
+
+bool UCombatComponent::Server_MeleeAttack_Validate(float Damage){return true;}
+void UCombatComponent::Server_MeleeAttack_Implementation(float Damage)
+{
+	MeleeAttack(Damage);
+}
+
+bool UCombatComponent::Server_MagicAttack_Validate(float MagicDamage, float MagicCoolDown){return true;}
+void UCombatComponent::Server_MagicAttack_Implementation(float MagicDamage, float MagicCoolDown)
+{
+	MagicAttack(MagicDamage, MagicCoolDown);
+}
+
+bool UCombatComponent::Server_RangedAttack_Validate(float Damage){return true;}
+void UCombatComponent::Server_RangedAttack_Implementation(float Damage)
+{
+	RangedAttack(Damage);
+}
