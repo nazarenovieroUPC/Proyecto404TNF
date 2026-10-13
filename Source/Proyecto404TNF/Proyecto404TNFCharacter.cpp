@@ -240,6 +240,7 @@ void AProyecto404TNFCharacter::ServerRomperCaja_Implementation(ALootBox* CajaAta
 
 void AProyecto404TNFCharacter::AnimationSwordAttack_Implementation()
 {
+	bCanAttack=true;
 }
 
 
@@ -342,7 +343,7 @@ void AProyecto404TNFCharacter::Dash(const FInputActionValue& Value)
 void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 {
 	if (bCanAttack){
-		bCanAttack = false;
+		bCanAttack = true;
 		
 		AnimationSwordAttack();
 		

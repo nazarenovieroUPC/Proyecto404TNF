@@ -29,7 +29,7 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mision")
 	TObjectPtr<ABridgeEvent> PuenteVinculado;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mision")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Mision")
 	FText NombreItemRequerido;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Mision UI")
