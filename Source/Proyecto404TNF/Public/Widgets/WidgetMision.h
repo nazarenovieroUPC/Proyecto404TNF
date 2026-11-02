@@ -1,29 +1,37 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "WidgetMision.generated.h"
 
 class UButton;
+class UWidgetSwitcher;
 class ANPCMision;
 
 UCLASS()
 class PROYECTO404TNF_API UWidgetMision : public UUserWidget
 {
 	GENERATED_BODY()
-	
-	public:
+    
+public:
 	virtual void NativeOnInitialized() override;
-	
-	UPROPERTY()
-	ANPCMision* NPCVinculado;
-	
+    
+	UPROPERTY(BlueprintReadWrite, Category = "NPC")
+	TObjectPtr<ANPCMision> NPCVinculado;
+    
 protected:
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UWidgetSwitcher> SwitcherPaneles;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UButton> Btn_PestanaMision;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UButton> Btn_PestanaTienda;
+	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Entregar;
-	
+    
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Aceptar;
 
@@ -31,8 +39,14 @@ protected:
 	TObjectPtr<UButton> Button_Cerrar;
 	
 	UFUNCTION()
-	void OnButtonEntregarClicked();
+	void MostrarVistaMision();
+
+	UFUNCTION()
+	void MostrarVistaTienda();
 	
+	UFUNCTION()
+	void OnButtonEntregarClicked();
+    
 	UFUNCTION()
 	void OnButtonAceptarClicked();
 
