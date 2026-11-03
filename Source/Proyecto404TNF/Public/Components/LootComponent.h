@@ -22,6 +22,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootComponent")
 	TArray<TSubclassOf<class AItemBase>> ItemsDrop;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootComponent", meta = (ClampMin = "1"))
+	int32 CantidadDrops = 1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LootComponent")
+	float RadioDispersion = 45.0f;
+	
 	UFUNCTION(BlueprintCallable, Category = "LootComponent")
 	void DropLoot();
 

@@ -16,6 +16,8 @@
 #include "Interfaces/InteractInterface.h"
 #include "Components/LevelingComponent.h"
 #include "Components/EquipmentComponent.h"
+#include "Actors/Characters/NPCMision.h"
+#include "Components/ShopComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -105,7 +107,10 @@ void AProyecto404TNFCharacter::NotifyActorBeginOverlap(AActor* OtherActor)
 void AProyecto404TNFCharacter::NotifyActorEndOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorEndOverlap(OtherActor);
-	OverlapActor = nullptr;
+	if (OverlapActor == OtherActor)
+	{
+		OverlapActor = nullptr;
+	}
 }
 
 //Damage Interface
@@ -122,9 +127,9 @@ void AProyecto404TNFCharacter::OnDying()
 
 void AProyecto404TNFCharacter::InteractOtherActor()
 {
-	ALootBox* CajaDetectada = Cast<ALootBox>(OverlapActor);
+	if (!OverlapActor) return;
 	
-	if (CajaDetectada)
+	if (ALootBox* CajaDetectada = Cast<ALootBox>(OverlapActor))
 	{
 		if (!HasAuthority())
 		{
@@ -134,17 +139,25 @@ void AProyecto404TNFCharacter::InteractOtherActor()
 		{
 			CajaDetectada->Interact_Implementation(this);
 		}
+		return;
 	}
-	else if (OverlapActor && OverlapActor->Implements<UInteractInterface>())
+	
+	if (OverlapActor->Implements<UInteractInterface>())
 	{
-		
-		if (!HasAuthority())
+		if (OverlapActor->IsA<ANPCMision>())
 		{
-			Server_InteractuarGenerico(OverlapActor);
+			IInteractInterface::Execute_Interact(OverlapActor, this);
 		}
 		else
 		{
-			IInteractInterface::Execute_Interact(OverlapActor, this);
+			if (!HasAuthority())
+			{
+				Server_InteractuarGenerico(OverlapActor);
+			}
+			else
+			{
+				IInteractInterface::Execute_Interact(OverlapActor, this);
+			}
 		}
 	}
 }
@@ -173,6 +186,14 @@ void AProyecto404TNFCharacter::RevertirBuffCoop()
 	if (IsLocallyControlled() && GEngine) 
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("El buff cooperativo ha expirado."));
+	}
+}
+
+void AProyecto404TNFCharacter::Server_ComprarItemEnTienda_Implementation(UShopComponent* Tienda, int32 IndiceOferta)
+{
+	if (Tienda)
+	{
+		Tienda->ComprarItem(this, IndiceOferta);
 	}
 }
 
@@ -354,4 +375,20 @@ void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 void AProyecto404TNFCharacter::AttackMagic(const FInputActionValue& Value)
 {
 	if (CombatComponent){ CombatComponent -> MagicAttack(StatsComponent->StatsTotal.MagicDamage, StatsComponent->StatsTotal.MagicCoolDown);}
+}
+
+void AProyecto404TNFCharacter::Server_AceptarMisionEnNPC_Implementation(ANPCMision* NPC)
+{
+	if (NPC)
+	{
+		NPC->Server_AceptarMision();
+	}
+}
+
+void AProyecto404TNFCharacter::Server_EntregarMaterialesEnNPC_Implementation(ANPCMision* NPC)
+{
+	if (NPC)
+	{
+		NPC->Server_EntregarMateriales(this);
+	}
 }

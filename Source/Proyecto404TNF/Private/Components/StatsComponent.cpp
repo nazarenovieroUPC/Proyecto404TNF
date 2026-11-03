@@ -1,103 +1,132 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Components/StatsComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Components/EquipmentComponent.h"
-#include "Structures/ItemDataStruct.h"
-#include "Components/HealthComponent.h"
 #include "Components/LevelingComponent.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Structures/CharacterStatsStruct.h"
+#include "Engine/DataTable.h"
 
-
-// Sets default values for this component's properties
 UStatsComponent::UStatsComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
-
-	// ...
+    PrimaryComponentTick.bCanEverTick = false;
+    SetIsReplicatedByDefault(true);
 }
 
+void UStatsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-// Called when the game starts
+    DOREPLIFETIME(UStatsComponent, StatsTotal);
+    DOREPLIFETIME(UStatsComponent, StatsBase);
+    DOREPLIFETIME(UStatsComponent, StatsBuff);
+}
+
 void UStatsComponent::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
+    
+    if (GetOwner() && GetOwner()->HasAuthority())
+    {
+        if (StatsDataTable && !LevelRowID.IsNone())
+        {
+            FCharacterStatsRow* Row = StatsDataTable->FindRow<FCharacterStatsRow>(LevelRowID, TEXT("StatsInit"));
+            if (Row)
+            {
+                StatsBase = *Row;
+            }
+        }
 
-	// ...
-	if ( StatsDataTable && !LevelRowID.IsNone())
-	{
-		FCharacterStatsRow* Row = StatsDataTable -> FindRow<FCharacterStatsRow>(LevelRowID, TEXT(""));
-		if (Row){ StatsBase = *Row; }
-	
-	
-		ULevelingComponent* LevelComponent = GetOwner()->FindComponentByClass<ULevelingComponent>();
-		if (LevelComponent){ LevelComponent->OnLevelUp.AddDynamic(this, &UStatsComponent::ChangeLevelRowID); }
-	}
-}
-
-
-// Called every frame
-void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+        if (ULevelingComponent* LevelComponent = GetOwner()->FindComponentByClass<ULevelingComponent>())
+        {
+            LevelComponent->OnLevelUp.AddDynamic(this, &UStatsComponent::ChangeLevelRowID);
+        }
+        
+        RecalculateTotalStats();
+    }
 }
 
 void UStatsComponent::ChangeSpeedMovement(float Speed)
 {
-	UCharacterMovementComponent* CharacterMovement = GetOwner()->FindComponentByClass<UCharacterMovementComponent>();
-	if (CharacterMovement){ CharacterMovement -> MaxWalkSpeed = Speed; }
+    if (ACharacter* CharacterOwner = Cast<ACharacter>(GetOwner()))
+    {
+        if (UCharacterMovementComponent* MoveComp = CharacterOwner->GetCharacterMovement())
+        {
+            MoveComp->MaxWalkSpeed = Speed;
+        }
+    }
 }
 
 void UStatsComponent::ChangeLevelRowID(int32 ID)
 {
-	FCharacterStatsRow* Row = StatsDataTable -> FindRow<FCharacterStatsRow>(FName(*FString::FromInt(ID)), TEXT(""));
-	if (Row){ StatsBase = *Row; }
-	
-	RecalculateTotalStats();
+    if (!GetOwner() || !GetOwner()->HasAuthority()) return;
+
+    if (StatsDataTable)
+    {
+        FCharacterStatsRow* Row = StatsDataTable->FindRow<FCharacterStatsRow>(FName(*FString::FromInt(ID)), TEXT("StatsLevelUp"));
+        if (Row)
+        {
+            StatsBase = *Row;
+        }
+    }
+
+    RecalculateTotalStats();
 }
 
 void UStatsComponent::OnBuff()
 {
+    // Función reservada para disparar efectos visuales o timers de buffs si se requiere
 }
 
 void UStatsComponent::InitializeEquipmentLink(UEquipmentComponent* EquipComp)
 {
-	CachedEquipment = EquipComp;
-	if (CachedEquipment)
-	{
-		CachedEquipment->OnStatsUpdated.AddDynamic(this, &UStatsComponent::RecalculateTotalStats);
-	}
-	RecalculateTotalStats();
+    CachedEquipment = EquipComp;
+    if (CachedEquipment)
+    {
+        CachedEquipment->OnStatsUpdated.AddDynamic(this, &UStatsComponent::RecalculateTotalStats);
+    }
+
+    if (GetOwner() && GetOwner()->HasAuthority())
+    {
+        RecalculateTotalStats();
+    }
 }
 
 void UStatsComponent::RecalculateTotalStats()
 {
-	StatsTotal = StatsBase;
-	
-	StatsTotal.MaxHealth += StatsBuff.MaxHealth;
-	StatsTotal.Defense += StatsBuff.Defense;
-	StatsTotal.MeleeDamage += StatsBuff.MeleeDamage;
-	StatsTotal.MagicDamage += StatsBuff.MagicDamage;
-	StatsTotal.Speed += StatsBuff.Speed;
-	StatsTotal.MagicCoolDown -= StatsBuff.MagicCoolDown;
-	
-	if (CachedEquipment)
-	{
-		StatsTotal.MaxHealth += CachedEquipment->GetStatBonus(EItemStatType::Health);
-		StatsTotal.Defense += CachedEquipment->GetStatBonus(EItemStatType::Defense);
-		StatsTotal.MeleeDamage += CachedEquipment->GetStatBonus(EItemStatType::MeleeDamage);
-		StatsTotal.MagicDamage += CachedEquipment->GetStatBonus(EItemStatType::MagicDamage);
-		StatsTotal.Speed += CachedEquipment->GetStatBonus(EItemStatType::Speed);
-		
-		StatsTotal.MagicCoolDown -= CachedEquipment->GetStatBonus(EItemStatType::MagicCoolDown);
-	}
-	ChangeSpeedMovement(StatsTotal.Speed);
-	
-	OnTotalStatsUpdated.Broadcast();
+    if (!GetOwner() || !GetOwner()->HasAuthority())
+    {
+        return;
+    }
+
+    StatsTotal = StatsBase;
+    
+    StatsTotal.MaxHealth += StatsBuff.MaxHealth;
+    StatsTotal.Defense += StatsBuff.Defense;
+    StatsTotal.MeleeDamage += StatsBuff.MeleeDamage;
+    StatsTotal.MagicDamage += StatsBuff.MagicDamage;
+    StatsTotal.Speed += StatsBuff.Speed;
+    StatsTotal.MagicCoolDown -= StatsBuff.MagicCoolDown;
+    
+    if (CachedEquipment)
+    {
+        StatsTotal.MaxHealth += CachedEquipment->GetStatBonus(EItemStatType::Health);
+        StatsTotal.Defense += CachedEquipment->GetStatBonus(EItemStatType::Defense);
+        StatsTotal.MeleeDamage += CachedEquipment->GetStatBonus(EItemStatType::MeleeDamage);
+        StatsTotal.MagicDamage += CachedEquipment->GetStatBonus(EItemStatType::MagicDamage);
+        StatsTotal.Speed += CachedEquipment->GetStatBonus(EItemStatType::Speed);
+        StatsTotal.MagicCoolDown -= CachedEquipment->GetStatBonus(EItemStatType::MagicCoolDown);
+    }
+    
+    ChangeSpeedMovement(StatsTotal.Speed);
+    
+    OnTotalStatsUpdated.Broadcast();
 }
 
+void UStatsComponent::OnRep_StatsTotal()
+{
+    ChangeSpeedMovement(StatsTotal.Speed);
+    
+    OnTotalStatsUpdated.Broadcast();
+}
