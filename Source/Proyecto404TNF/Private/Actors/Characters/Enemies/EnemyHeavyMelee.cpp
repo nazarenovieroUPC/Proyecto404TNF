@@ -101,24 +101,27 @@ void AEnemyHeavyMelee::RecoverFromStun()
 }
 
 void AEnemyHeavyMelee::OnChargeHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+								   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+								   bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!HasAuthority()) return;
 	
 	if (bIsCharging && OtherActor && OtherActor != this)
 	{
-		IDamageableInterface::Execute_TakeDamage(OtherActor, StatsComponent->StatsBase.MeleeDamage, GetOwner());
-
 		if (AProyecto404TNFCharacter* HitCharacter = Cast<AProyecto404TNFCharacter>(OtherActor))
 		{
+			if (HitCharacter->Implements<UDamageableInterface>())
+			{
+				IDamageableInterface::Execute_TakeDamage(HitCharacter, StatsComponent ? StatsComponent->StatsBase.MeleeDamage : 20.0f, this);
+			}
+			
 			FVector PushDirection = GetActorForwardVector();
 			PushDirection.Z += 0.3f;
 			PushDirection.Normalize();
-			
+          
 			FVector LaunchVelocity = PushDirection * KnockbackForceCharge;
-			
 			HitCharacter->LaunchCharacter(LaunchVelocity, true, true);
-			
+          
 			StopCharge();
 		}
 	}

@@ -100,39 +100,58 @@ void UCombatComponent::MeleeAttack(float Damage)
 
 void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 {
-    if (!GetOwner()->HasAuthority())
-    {
-       Server_MagicAttack(MagicDamage, MagicCoolDown);
-       return;
-    }
+	if (MagicCoolDown <= 0.05f)
+	{
+		MagicCoolDown = 2.5f; 
+	}
+	
+	if (!bCanMagicAttack) return;
+	
+	if (!GetOwner()->HasAuthority())
+	{
+		Server_MagicAttack(MagicDamage, MagicCoolDown);
+	}
+	
+	bCanMagicAttack = false;
+	CooldownMagiaTotal = MagicCoolDown;
     
-    if (bCanMagicAttack && Projectile)
-    {
-       FVector SpawnLocation = GetOwner()->GetActorLocation() + (GetOwner()->GetActorForwardVector() * 50.0f);
-       FRotator SpawnRotation = GetOwner()->GetActorRotation();
+	if (GetOwner())
+	{
+		GetOwner()->GetWorldTimerManager().SetTimer(
+			MagicTimerHandle,
+			[this]() { bCanMagicAttack = true; },
+			MagicCoolDown,
+			false
+		);
+	}
+	
+	if (GetOwner() && GetOwner()->HasAuthority())
+	{
+		if (Projectile)
+		{
+			FVector SpawnLocation = GetOwner()->GetActorLocation() + (GetOwner()->GetActorForwardVector() * 50.0f);
+			FRotator SpawnRotation = GetOwner()->GetActorRotation();
 
-       if (UArrowComponent* Arrow = GetOwner()->FindComponentByClass<UArrowComponent>())
-       {
-          SpawnLocation = Arrow->GetComponentLocation();
-          SpawnRotation = Arrow->GetComponentRotation();
-       }
-       
-       FActorSpawnParameters SpawnParams;
-       SpawnParams.Owner = GetOwner();
-       SpawnParams.Instigator = Cast<APawn>(GetOwner());
-       
-       AMagicProjectile* MagicProjectiles = GetWorld()->SpawnActor<AMagicProjectile>(Projectile, SpawnLocation, SpawnRotation, SpawnParams);
-       if (MagicProjectiles)
-       {
-          MagicProjectiles->MagicDamage = MagicDamage;
-          MagicProjectiles->CharacterInstigator = GetOwner();
-       }
-       
-       OnMagicAttack.Broadcast();
-       
-       bCanMagicAttack = false;
-       GetOwner()->GetWorldTimerManager().SetTimer(MagicTimerHandle, [this](){ bCanMagicAttack = true; }, MagicCoolDown, false);
-    }
+			if (UArrowComponent* Arrow = GetOwner()->FindComponentByClass<UArrowComponent>())
+			{
+				SpawnLocation = Arrow->GetComponentLocation();
+				SpawnRotation = Arrow->GetComponentRotation();
+			}
+            
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = GetOwner();
+			SpawnParams.Instigator = Cast<APawn>(GetOwner());
+            
+			AMagicProjectile* MagicProjectiles = GetWorld()->SpawnActor<AMagicProjectile>(Projectile, SpawnLocation, SpawnRotation, SpawnParams);
+			if (MagicProjectiles)
+			{
+				MagicProjectiles->MagicDamage = MagicDamage;
+				MagicProjectiles->CharacterInstigator = GetOwner();
+			}
+		}
+
+		OnMagicAttack.Broadcast();
+	}
 }
 
 void UCombatComponent::RangedAttack(float Damage)
@@ -163,6 +182,23 @@ void UCombatComponent::RangedAttack(float Damage)
     {
        BaseProjectiles->Damage = Damage;
     }
+}
+
+float UCombatComponent::GetPorcentajeCooldownMagia() const
+{
+	if (CooldownMagiaTotal <= 0.0f || !GetOwner()) return 0.0f;
+
+	const float TiempoRestante = GetOwner()->GetWorldTimerManager().GetTimerRemaining(MagicTimerHandle);
+	if (TiempoRestante <= 0.0f) return 0.0f;
+
+	return FMath::Clamp(TiempoRestante / CooldownMagiaTotal, 0.0f, 1.0f);
+}
+
+float UCombatComponent::GetTiempoRestanteCooldownMagia() const
+{
+	if (!GetOwner()) return 0.0f;
+	const float TiempoRestante = GetOwner()->GetWorldTimerManager().GetTimerRemaining(MagicTimerHandle);
+	return FMath::Max(0.0f, TiempoRestante);
 }
 
 bool UCombatComponent::Server_MeleeAttack_Validate(float Damage) { return true; }

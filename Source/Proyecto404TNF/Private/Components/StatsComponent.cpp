@@ -27,22 +27,23 @@ void UStatsComponent::BeginPlay()
 {
     Super::BeginPlay();
     
+    if (StatsDataTable && !LevelRowID.IsNone())
+    {
+        FCharacterStatsRow* Row = StatsDataTable->FindRow<FCharacterStatsRow>(LevelRowID, TEXT("StatsInit"));
+        if (Row)
+        {
+            StatsBase = *Row;
+            StatsTotal = StatsBase; 
+        }
+    }
+    
     if (GetOwner() && GetOwner()->HasAuthority())
     {
-        if (StatsDataTable && !LevelRowID.IsNone())
-        {
-            FCharacterStatsRow* Row = StatsDataTable->FindRow<FCharacterStatsRow>(LevelRowID, TEXT("StatsInit"));
-            if (Row)
-            {
-                StatsBase = *Row;
-            }
-        }
-
         if (ULevelingComponent* LevelComponent = GetOwner()->FindComponentByClass<ULevelingComponent>())
         {
             LevelComponent->OnLevelUp.AddDynamic(this, &UStatsComponent::ChangeLevelRowID);
         }
-        
+
         RecalculateTotalStats();
     }
 }

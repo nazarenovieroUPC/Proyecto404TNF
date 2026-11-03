@@ -1,6 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -15,29 +13,33 @@ class PROYECTO404TNF_API AProjectileBase : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AProjectileBase();
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Collision)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USphereComponent> SphereComponent;
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Collision)
-	TObjectPtr<UMeshComponent> MeshComponent;
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Stats)
-	float Damage = 10;
-	
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	
-	UFUNCTION()
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
-public:
-	UFUNCTION()
-	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UMeshComponent> MeshComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float Damage = 10.0f;
+	
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	bool CanDamageActor(AActor* Target) const;
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+    
+	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, 
+						   UPrimitiveComponent* OtherComp, bool bSelfMoved, 
+						   FVector HitLocation, FVector HitNormal, 
+						   FVector NormalImpulse, const FHitResult& Hit) override;
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat|VFX")
+	void BP_OnImpact(FVector ImpactLocation);
 };

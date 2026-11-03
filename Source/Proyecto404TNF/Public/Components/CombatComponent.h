@@ -36,6 +36,9 @@ protected:
     
 	FTimerHandle MagicTimerHandle;
 	
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Cooldown")
+	float CooldownMagiaTotal = 0.0f;
+	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_MeleeAttack(float Damage);
     
@@ -54,4 +57,10 @@ public:
     
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void RangedAttack(float Damage);
+
+	UFUNCTION(BlueprintPure, Category = "Combat|Cooldown")
+	float GetPorcentajeCooldownMagia() const;
+	
+	UFUNCTION(BlueprintPure, Category = "Combat|Cooldown")
+	float GetTiempoRestanteCooldownMagia() const;
 };

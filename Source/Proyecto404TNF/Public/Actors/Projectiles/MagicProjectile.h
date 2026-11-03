@@ -1,10 +1,7 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "ProjectileBase.h"
-#include "GameFramework/Actor.h"
+#include "Actors/Projectiles/ProjectileBase.h"
 #include "MagicProjectile.generated.h"
 
 UCLASS()
@@ -13,22 +10,14 @@ class PROYECTO404TNF_API AMagicProjectile : public AProjectileBase
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AMagicProjectile();
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Defaults")
-	float MagicDamage = 0;
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Defaults")
-	
-	TObjectPtr<AActor> CharacterInstigator;
-	
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
-public:
-	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Magic")
+	float MagicDamage = 25.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Magic")
+	TObjectPtr<AActor> CharacterInstigator;
+
+protected:
+	virtual void BeginPlay() override;
 };
