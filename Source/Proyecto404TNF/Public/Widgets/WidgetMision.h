@@ -22,13 +22,13 @@ public:
 protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UWidgetSwitcher> SwitcherPaneles;
-	
+    
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UButton> Btn_PestanaMision;
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UButton> Btn_PestanaTienda;
-	
+    
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Entregar;
     
@@ -37,13 +37,13 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Cerrar;
-	
+    
 	UFUNCTION()
 	void MostrarVistaMision();
 
 	UFUNCTION()
 	void MostrarVistaTienda();
-	
+    
 	UFUNCTION()
 	void OnButtonEntregarClicked();
     

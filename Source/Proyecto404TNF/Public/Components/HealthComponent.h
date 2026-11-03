@@ -3,70 +3,67 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "StatsComponent.h"
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, CurrentHealth, float, MaxHealth);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROYECTO404TNF_API UHealthComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UHealthComponent();
-	
-	//Properties
-	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere, Category = "Health")
-	float MaxHealth = 100.f;
-	
-	UPROPERTY(ReplicatedUsing = OnRep_ActualHealth, BlueprintReadWrite, EditAnywhere, Category = "Health")
-	float ActualHealth = MaxHealth;
-	
-	UPROPERTY(ReplicatedUsing = OnRep_IsDead ,BlueprintReadWrite, EditAnywhere, Category = "Health")
-	bool bIsDead = false;
-	
-	UFUNCTION(BlueprintCallable, Category = "Health")
-	void UpdateMaxHealth(float NewMaxHealth);
-	
+public: 
+    UHealthComponent();
+
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    
+    UFUNCTION(BlueprintPure, Category = "Health")
+    float GetHealth() const { return ActualHealth; }
+    
+    UFUNCTION(BlueprintPure, Category = "Health")
+    float GetMaxHealth() const { return MaxHealth; }
+    
+    UFUNCTION(BlueprintPure, Category = "Health")
+    bool GetIsDead() const { return bIsDead; }
+    
+    UFUNCTION(BlueprintCallable, Category = "Health")
+    void HandleDamage(float Damage);
+    
+    UFUNCTION(BlueprintCallable, Category = "Health")
+    void HandleHeal(float Heal);
+    
+    UFUNCTION(BlueprintCallable, Category = "Health")
+    void UpdateMaxHealth(float NewMaxHealth);
+    
+    UPROPERTY(BlueprintAssignable, Category = "Health|Events")
+    FOnDeath OnDeath;
+    
+    UPROPERTY(BlueprintAssignable, Category = "Health|Events")
+    FOnHealthChanged OnHealthChanged;
+    
+    UPROPERTY(ReplicatedUsing = OnRep_MaxHealth, BlueprintReadOnly, EditAnywhere, Category = "Health")
+    float MaxHealth = 100.f;
+    
+    UPROPERTY(ReplicatedUsing = OnRep_ActualHealth, BlueprintReadOnly, EditAnywhere, Category = "Health")
+    float ActualHealth = 100.f;
+    
+    UPROPERTY(ReplicatedUsing = OnRep_IsDead, BlueprintReadOnly, EditAnywhere, Category = "Health")
+    bool bIsDead = false;
+
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
+    
+    UFUNCTION()
+    void OnRep_ActualHealth();
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
-	//Getters
-	UFUNCTION(BlueprintCallable)
-	float GetHealth(){return ActualHealth;}
-	
-	UFUNCTION(BlueprintCallable)
-	bool GetIsDead(){return bIsDead;}
-	
-	// Functions
-	UFUNCTION(BlueprintCallable)
-	void HandleDamage(float Damage);
-	
-	UFUNCTION(BlueprintCallable)
-	void HandleHeal(float Heal);
-	
-	UFUNCTION(BlueprintCallable)
-	void HandleDeath();
-	
-	UFUNCTION()
-	void OnRep_ActualHealth();
-	
-	UFUNCTION()
-	void OnRep_IsDead();
-	
-	//Delegates
-	UPROPERTY(BlueprintAssignable, Category = "Health/Events")
-	FOnDeath OnDeath;
-	
-	UPROPERTY(BlueprintAssignable, Category = "Health/Events")
-	FOnHealthChanged OnHealthChanged;
+    UFUNCTION()
+    void OnRep_MaxHealth();
+    
+    UFUNCTION()
+    void OnRep_IsDead();
+
+private:
+    void HandleDeath();
 };

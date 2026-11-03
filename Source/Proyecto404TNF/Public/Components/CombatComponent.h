@@ -16,44 +16,42 @@ class PROYECTO404TNF_API UCombatComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UCombatComponent();
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
+    
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Combat")
 	TSubclassOf<AProjectileBase> Projectile;
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
+    
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Combat")
 	bool bCanMagicAttack = true;
-	
-	//Delegates
-	UPROPERTY(BlueprintAssignable, Category = Combat)
+    
+	UPROPERTY(BlueprintAssignable, Category = "Combat|Events")
 	FOnMagicAttack OnMagicAttack;
+	
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	bool CanDamageActor(AActor* Target) const;
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
-	
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	
+    
 	FTimerHandle MagicTimerHandle;
 	
-	//RPCs
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_MeleeAttack(float Damage);
-	
+    
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_MagicAttack(float MagicDamage, float MagicCoolDown);
-	
+    
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_RangedAttack(float Damage);
 
 public:
-	UFUNCTION(BlueprintCallable, Category = Combat)
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void MeleeAttack(float Damage);
-	
-	UFUNCTION(BlueprintCallable, Category = Combat)
+    
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void MagicAttack(float MagicDamage, float MagicCoolDown);
-	
-	UFUNCTION(BlueprintCallable, Category = Combat)
+    
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void RangedAttack(float Damage);
 };

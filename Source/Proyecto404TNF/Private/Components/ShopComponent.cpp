@@ -8,6 +8,54 @@ UShopComponent::UShopComponent()
     SetIsReplicatedByDefault(true);
 }
 
+bool UShopComponent::ComprarItem(AActor* Comprador, int32 IndiceOferta)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority() || !Comprador) return false;
+
+    if (!CatalogoOfertas.IsValidIndex(IndiceOferta))
+    {
+        OnTransaccionResultado.Broadcast(false, FText::FromString(TEXT("Oferta no válida.")));
+        return false;
+    }
+
+    const FShopItemEntry& Oferta = CatalogoOfertas[IndiceOferta];
+
+    if (Oferta.ItemHandle.IsNull())
+    {
+        OnTransaccionResultado.Broadcast(false, FText::FromString(TEXT("El ítem no está configurado.")));
+        return false;
+    }
+
+    FItemData* DatosItemComprado = Oferta.ItemHandle.GetRow<FItemData>(TEXT("Shop_GetRow"));
+    if (!DatosItemComprado)
+    {
+        OnTransaccionResultado.Broadcast(false, FText::FromString(TEXT("No se encontró la fila en la tabla de datos.")));
+        return false;
+    }
+
+    UInventoryComponent* Inventario = Comprador->FindComponentByClass<UInventoryComponent>();
+    if (!Inventario) return false;
+    
+    if (Inventario->MonedasComida < Oferta.PrecioComida)
+    {
+        OnTransaccionResultado.Broadcast(false, FText::FromString(TEXT("No tienes suficiente comida.")));
+        return false;
+    }
+    
+    FItemData ItemAEntregar = *DatosItemComprado;
+    if (ItemAEntregar.Cantidad <= 0) ItemAEntregar.Cantidad = 1;
+    
+    if (!Inventario->AddItem(ItemAEntregar))
+    {
+        OnTransaccionResultado.Broadcast(false, FText::FromString(TEXT("Inventario lleno.")));
+        return false;
+    }
+    
+    Inventario->ConsumirMonedas(Oferta.PrecioComida);
+    OnTransaccionResultado.Broadcast(true, FText::FromString(TEXT("¡Compra realizada con éxito!")));
+    return true;
+}
+
 void UShopComponent::Server_ComprarItem_Implementation(AActor* Comprador, int32 IndiceOferta)
 {
     if (!GetOwner() || !GetOwner()->HasAuthority() || !Comprador) return;

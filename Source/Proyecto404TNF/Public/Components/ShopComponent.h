@@ -26,4 +26,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Tienda")
 	TArray<FShopItemEntry> GetCatalogo() const { return CatalogoOfertas; }
+	
+	UFUNCTION(BlueprintCallable, Category = "Tienda")
+	bool ComprarItem(AActor* Comprador, int32 IndiceOferta);
 };

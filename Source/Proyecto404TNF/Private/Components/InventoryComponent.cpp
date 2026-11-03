@@ -45,11 +45,6 @@ void UInventoryComponent::AddMonedas(int32 Cantidad)
     if (GetOwner() && GetOwner()->HasAuthority() && Cantidad > 0)
     {
         MonedasComida += Cantidad;
-        if (GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, 
-                FString::Printf(TEXT("¡Monedas sumadas! Total actual: %d"), MonedasComida));
-        }
         OnRep_MonedasComida(); 
     }
 }
