@@ -14,55 +14,53 @@ class UEquipmentComponent;
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROYECTO404TNF_API UStatsComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
-	UStatsComponent();
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	FCharacterStatsRow StatsTotal;
-	
-	UPROPERTY(BlueprintAssignable, Category = "Stats/Events")
-	FOnTotalStatsUpdated OnTotalStatsUpdated;
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Stats")
-	TObjectPtr<UDataTable> StatsDataTable;
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Stats")
-	FName LevelRowID;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
-	FCharacterStatsRow StatsBase;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
-	FCharacterStatsRow StatsBuff;
+    UStatsComponent();
+
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    
+    UPROPERTY(ReplicatedUsing = OnRep_StatsTotal, BlueprintReadOnly, Category = "Stats")
+    FCharacterStatsRow StatsTotal;
+
+    UPROPERTY(BlueprintAssignable, Category = "Stats|Events")
+    FOnTotalStatsUpdated OnTotalStatsUpdated;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+    TObjectPtr<UDataTable> StatsDataTable;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+    FName LevelRowID;
+    
+    UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Stats")
+    FCharacterStatsRow StatsBase;
+    
+    UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Stats")
+    FCharacterStatsRow StatsBuff;
+
+    UFUNCTION(BlueprintCallable, Category = "Stats")
+    void ChangeSpeedMovement(float Speed);
+
+    UFUNCTION(BlueprintCallable, Category = "Stats")
+    void ChangeLevelRowID(int32 ID);
+
+    UFUNCTION(BlueprintCallable, Category = "Stats")
+    void OnBuff();
+
+    UFUNCTION(BlueprintCallable, Category = "Stats")
+    void InitializeEquipmentLink(UEquipmentComponent* EquipComp);
+    
+    UFUNCTION(BlueprintCallable, Category = "Stats")
+    void RecalculateTotalStats();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
+    
+    UFUNCTION()
+    void OnRep_StatsTotal();
 
-public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
-	
-	UFUNCTION(BlueprintCallable)
-	void ChangeSpeedMovement(float Speed);
-	
-	UFUNCTION(BlueprintCallable)
-	void ChangeLevelRowID(int32 ID);
-	
-	UFUNCTION(BlueprintCallable)
-	void OnBuff();
-	
-	UFUNCTION(BlueprintCallable, Category = "Stats")
-	void InitializeEquipmentLink(UEquipmentComponent* EquipComp);
-	
-	UFUNCTION(BlueprintCallable, Category = "Stats")
-	void RecalculateTotalStats();
-	
 private:
-	UPROPERTY()
-	TObjectPtr<UEquipmentComponent> CachedEquipment;
+    UPROPERTY()
+    TObjectPtr<UEquipmentComponent> CachedEquipment;
 };

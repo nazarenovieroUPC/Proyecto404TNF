@@ -1,107 +1,113 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Components/HealthComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/StatsComponent.h"
 
-// Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.bCanEverTick = false;
 
-	SetIsReplicatedByDefault(true);
+    SetIsReplicatedByDefault(true);
+
+    MaxHealth = 100.0f;
+    ActualHealth = MaxHealth;
+    bIsDead = false;
 }
 
-//FUNCTIONS
+void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    
+    DOREPLIFETIME(UHealthComponent, MaxHealth);
+    DOREPLIFETIME(UHealthComponent, ActualHealth);
+    DOREPLIFETIME(UHealthComponent, bIsDead);
+}
+
+void UHealthComponent::BeginPlay()
+{
+    Super::BeginPlay();
+    
+    if (GetOwner() && GetOwner()->HasAuthority())
+    {
+        if (UStatsComponent* StatsComponent = GetOwner()->FindComponentByClass<UStatsComponent>())
+        {
+            MaxHealth = StatsComponent->StatsBase.MaxHealth;
+            ActualHealth = MaxHealth;
+        }
+    }
+    
+    OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
+}
+
 void UHealthComponent::HandleDamage(float Damage)
 {
-	if (!GetOwner()->HasAuthority())
-	{
-		return;
-	}
-	
-	ActualHealth = FMath::Clamp(ActualHealth - Damage, 0.f, MaxHealth);
-	
-	HandleDeath();
-	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
+    if (!GetOwner() || !GetOwner()->HasAuthority() || bIsDead || Damage <= 0.0f)
+    {
+        return;
+    }
+    
+    ActualHealth = FMath::Clamp(ActualHealth - Damage, 0.0f, MaxHealth);
+    
+    if (ActualHealth <= 0.0f)
+    {
+        HandleDeath();
+    }
+    
+    OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
 void UHealthComponent::HandleHeal(float Heal)
 {
-	if (!GetOwner()->HasAuthority()) return;
-	
-	ActualHealth = FMath::Clamp(ActualHealth + Heal, 0.f, MaxHealth);
-	
-	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
+    if (!GetOwner() || !GetOwner()->HasAuthority() || bIsDead || Heal <= 0.0f)
+    {
+        return;
+    }
+    
+    ActualHealth = FMath::Clamp(ActualHealth + Heal, 0.0f, MaxHealth);
+    
+    OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
 void UHealthComponent::HandleDeath()
 {
-	if (ActualHealth <= 0.f)
-	{
-		bIsDead = true;
-		OnDeath.Broadcast();
-	}
-}
+    if (bIsDead) return;
 
-void UHealthComponent::OnRep_ActualHealth()
-{
-	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
-}
-
-void UHealthComponent::OnRep_IsDead()
-{
-	if (bIsDead)
-	{
-		OnDeath.Broadcast();
-	}
+    bIsDead = true;
+    OnDeath.Broadcast(); 
 }
 
 void UHealthComponent::UpdateMaxHealth(float NewMaxHealth)
 {
-	if (!GetOwner()->HasAuthority()) return;
-	
-	MaxHealth = NewMaxHealth;
-	
-	if (ActualHealth > MaxHealth) ActualHealth = MaxHealth;
-	
-	OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
+    if (!GetOwner() || !GetOwner()->HasAuthority() || NewMaxHealth <= 0.0f)
+    {
+        return;
+    }
+    
+    MaxHealth = NewMaxHealth;
+    
+    if (ActualHealth > MaxHealth)
+    {
+        ActualHealth = MaxHealth;
+    }
+    
+    OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
-// Called when the game starts
-void UHealthComponent::BeginPlay()
+void UHealthComponent::OnRep_ActualHealth()
 {
-	Super::BeginPlay();
-	// ...
-	
-	//Setea la vida si el actor contiene el StatComponent
-	if (GetOwner()->HasAuthority()){
-		UStatsComponent* StatsComponent = GetOwner()->FindComponentByClass<UStatsComponent>();
-	
-		if (StatsComponent)
-		{
-			MaxHealth = StatsComponent->StatsBase.MaxHealth;
-			ActualHealth = MaxHealth;
-		}
-	}
+    OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
-
-// Called every frame
-void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UHealthComponent::OnRep_MaxHealth()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
-
-void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UHealthComponent::OnRep_IsDead()
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(UHealthComponent, MaxHealth);
-	DOREPLIFETIME(UHealthComponent, ActualHealth);
-	DOREPLIFETIME(UHealthComponent, bIsDead);
+    if (bIsDead)
+    {
+        OnDeath.Broadcast();
+    }
 }

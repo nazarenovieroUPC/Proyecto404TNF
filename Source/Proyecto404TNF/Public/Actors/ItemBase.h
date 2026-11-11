@@ -17,10 +17,18 @@ public:
 	// Sets default values for this actor's properties
 	AItemBase();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "ItemData")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite ,Category = "ItemData")
 	FItemData DataDelItem;
 	
+	UFUNCTION(BlueprintCallable, Category = "Item")
+	void SetItemData(const FItemData& NewData);
+	
+	UFUNCTION(BlueprintCallable, Category = "Item")
+	FItemData GetItemData() const{ return DataDelItem; }
+	
 	virtual void Interact_Implementation(AActor* Interactor) override;
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	// Called when the game starts or when spawned

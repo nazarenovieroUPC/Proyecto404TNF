@@ -2,6 +2,7 @@
 
 
 #include "Actors/ItemBase.h"
+#include "Net/UnrealNetwork.h"
 #include "Components/InventoryComponent.h"
 #include "Components/StaticMeshComponent.h"
 
@@ -22,7 +23,20 @@ AItemBase::AItemBase()
 	MeshItem->SetCollisionProfileName(TEXT("Custom"));
 	MeshItem->SetCollisionResponseToAllChannels(ECR_Block);
 	MeshItem->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	MeshItem->SetCollisionObjectType(ECC_PhysicsBody);
+	MeshItem->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Ignore);
+	MeshItem->SetLinearDamping(2.0f);
+	MeshItem->SetAngularDamping(3.0f);
 }
+
+void AItemBase::SetItemData(const FItemData& NewData)
+{
+	if (HasAuthority())
+	{
+		DataDelItem = NewData;
+	}
+}
+
 
 void AItemBase::Interact_Implementation(AActor* Interactor)
 {
@@ -45,6 +59,13 @@ void AItemBase::Interact_Implementation(AActor* Interactor)
 			}
 		}
 	}
+}
+
+void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AItemBase, DataDelItem);
 }
 
 // Called when the game starts or when spawned

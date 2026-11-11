@@ -18,6 +18,8 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class UShopComponent;
+class ANPCMision;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -194,6 +196,15 @@ public:
 	
 	UFUNCTION()
 	void RevertirBuffCoop();
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Tienda")
+	void Server_ComprarItemEnTienda(UShopComponent* Tienda, int32 IndiceOferta);
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Mision")
+	void Server_AceptarMisionEnNPC(ANPCMision* NPC);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Mision")
+	void Server_EntregarMaterialesEnNPC(ANPCMision* NPC);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coop")
 	ERolCoop RolActual;
