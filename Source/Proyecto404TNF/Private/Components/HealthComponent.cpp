@@ -94,6 +94,16 @@ void UHealthComponent::UpdateMaxHealth(float NewMaxHealth)
     OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
 }
 
+void UHealthComponent::Revive()
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority()) return;
+    
+    bIsDead = false;
+    ActualHealth = MaxHealth;
+    
+    OnHealthChanged.Broadcast(ActualHealth, MaxHealth);
+}
+
 void UHealthComponent::OnRep_ActualHealth()
 {
     OnHealthChanged.Broadcast(ActualHealth, MaxHealth);

@@ -9,90 +9,92 @@
 
 class UBoxComponent;
 class UHordeManagerComponent;
+class UArrowComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBridgeCompletedSignature);
 
 UCLASS()
 class PROYECTO404TNF_API ABridgeEvent : public AActor, public IInteractInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
-	ABridgeEvent();
-	
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
-	UPROPERTY(BlueprintAssignable, Category = "Bridge|BuildingSystem")
-	FOnBridgeCompletedSignature OnBridgeCompleted;
-	
-	UPROPERTY(ReplicatedUsing = OnRep_BridgeBuilt, BlueprintReadOnly, Category = "Mision")
-	bool bBridgeBuilt;
+    ABridgeEvent();
+    
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    
+    UPROPERTY(BlueprintAssignable, Category = "Bridge|BuildingSystem")
+    FOnBridgeCompletedSignature OnBridgeCompleted;
+    
+    UPROPERTY(ReplicatedUsing = OnRep_BridgeBuilt, BlueprintReadOnly, Category = "Mision")
+    bool bBridgeBuilt;
 
-	UFUNCTION()
-	void OnRep_BridgeBuilt();
-	
-	UFUNCTION(BlueprintCallable, Category = "Mision")
-	void CanConstruct();
+    UFUNCTION()
+    void OnRep_BridgeBuilt();
+    
+    UFUNCTION(BlueprintCallable, Category = "Mision")
+    void CanConstruct();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Bridge|Components", meta = (AllowPrivateAccess = true))
-	TObjectPtr<USceneComponent> StartPoint;
-		
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Components", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UBoxComponent> BoxCollision;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Components", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UStaticMeshComponent> MeshBridge;
-	
-	//Bridge building
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Components", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UInstancedStaticMeshComponent> MeshBridgeInstance;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Setup", meta = (MakeEditWidget = true))
-	FVector EndPointLocal = FVector(1000.0f, 0.0f, 0.0f);
+    virtual void BeginPlay() override;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Bridge|Components", meta = (AllowPrivateAccess = true))
+    TObjectPtr<USceneComponent> StartPoint;
+       
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Components", meta = (AllowPrivateAccess = true))
+    TObjectPtr<UBoxComponent> BoxCollision;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Components", meta = (AllowPrivateAccess = true))
+    TObjectPtr<UStaticMeshComponent> MeshBridge;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Components", meta = (AllowPrivateAccess = true))
+    TObjectPtr<UInstancedStaticMeshComponent> MeshBridgeInstance;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bridge|Respawn", meta = (AllowPrivateAccess = true))
+    TObjectPtr<UArrowComponent> PuntoRespawnPuente;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Setup", meta = (MakeEditWidget = true))
+    FVector EndPointLocal = FVector(1000.0f, 0.0f, 0.0f);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Setup")
-	float SegmentLength = 150.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Setup")
+    float SegmentLength = 150.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Setup")
-	float BuildStepInterval = 0.35f;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UHordeManagerComponent> HordeManagerComponent;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bridge|Setup")
+    float BuildStepInterval = 0.35f;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = true))
+    TObjectPtr<UHordeManagerComponent> HordeManagerComponent;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	
-	virtual void Interact_Implementation(AActor* Actor) override;
-	
-	UFUNCTION()
-	void OnHordeCompleted();
-	
-	UFUNCTION()
-	void StartBuilding();
-	
+    virtual void Tick(float DeltaTime) override;
+    
+    virtual void Interact_Implementation(AActor* Actor) override;
+    
+    UFUNCTION()
+    void OnHordeCompleted();
+    
+    UFUNCTION()
+    void StartBuilding();
+    
 private:
-	UFUNCTION()
-	void OnRep_SegmentsBuilt();
-	
-	UFUNCTION()
-	void BuildNexSegment();
-	
-	UFUNCTION()
-	void UpdateBridgeVisuals();
-	
-	UPROPERTY(ReplicatedUsing = OnRep_SegmentsBuilt)
-	int32 SegmentsBuilt = 0;
-	
-	FTimerHandle BuildTimerHandle;
-	
-	int32 TotalSegments = 0;
-	int32 CurrentSegmentIndex = 0;
-	FRotator BridgeRotation;
-	FVector SegmentStepVector;
+    UFUNCTION()
+    void OnRep_SegmentsBuilt();
+    
+    UFUNCTION()
+    void BuildNexSegment();
+    
+    UFUNCTION()
+    void UpdateBridgeVisuals();
+
+    void ActualizarRespawnJugadores();
+    
+    UPROPERTY(ReplicatedUsing = OnRep_SegmentsBuilt)
+    int32 SegmentsBuilt = 0;
+    
+    FTimerHandle BuildTimerHandle;
+    
+    int32 TotalSegments = 0;
+    int32 CurrentSegmentIndex = 0;
+    FRotator BridgeRotation;
+    FVector SegmentStepVector;
 };

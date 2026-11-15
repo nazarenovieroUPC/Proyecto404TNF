@@ -115,6 +115,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	float Defense;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
+	float RespawnTime = 3.0f;
+	
 protected:
 
 	/** Called for movement input */
@@ -150,6 +153,10 @@ protected:
 	
 	//TIMERS
 	FTimerHandle DashTimerHandle;
+	FTransform CurrentRespawnTransform;
+	FTimerHandle TimerRespawn;
+	
+	void ExecuteRespawn();
 	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -163,6 +170,9 @@ protected:
 	
 	UFUNCTION()
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetDeathState(bool bDead);
 	
 public:
 	/** Returns CameraBoom subobject **/
@@ -208,6 +218,8 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coop")
 	ERolCoop RolActual;
+	
+	void SetRespawnTransform(const FTransform& NewTransform) {CurrentRespawnTransform = NewTransform;};
 	
 private:
 	FTimerHandle TimerRevertirBuff;

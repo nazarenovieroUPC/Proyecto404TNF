@@ -87,6 +87,11 @@ void AProyecto404TNFCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 	
+	if (HasAuthority())
+	{
+		CurrentRespawnTransform = GetActorTransform();
+	}
+	
 	if (HealthComponent){ HealthComponent -> OnDeath.AddDynamic(this, &AProyecto404TNFCharacter::OnDying); }
 	
 	if (StatsComponent && EquipmentComponent)
@@ -113,6 +118,7 @@ void AProyecto404TNFCharacter::NotifyActorEndOverlap(AActor* OtherActor)
 	}
 }
 
+
 //Damage Interface
 void AProyecto404TNFCharacter::TakeDamage_Implementation(float TakeDamage, AActor* DamagerActor)
 {
@@ -122,7 +128,15 @@ void AProyecto404TNFCharacter::TakeDamage_Implementation(float TakeDamage, AActo
 
 void AProyecto404TNFCharacter::OnDying()
 {
-	Destroy();
+	if (!HasAuthority()) return;
+	Multicast_SetDeathState(true);
+	GetWorldTimerManager().SetTimer(
+		TimerRespawn,
+		this,
+		&AProyecto404TNFCharacter::ExecuteRespawn,
+		RespawnTime,
+		false
+		);
 }
 
 void AProyecto404TNFCharacter::InteractOtherActor()
@@ -390,5 +404,46 @@ void AProyecto404TNFCharacter::Server_EntregarMaterialesEnNPC_Implementation(ANP
 	if (NPC)
 	{
 		NPC->Server_EntregarMateriales(this);
+	}
+}
+
+void AProyecto404TNFCharacter::ExecuteRespawn()
+{
+	if (!HasAuthority()) return;
+	SetActorTransform(CurrentRespawnTransform, false, nullptr, ETeleportType::TeleportPhysics);
+	if (HealthComponent)
+	{
+		HealthComponent->Revive();
+	}
+	Multicast_SetDeathState(false);
+}
+
+void AProyecto404TNFCharacter::Multicast_SetDeathState_Implementation(bool bDead)
+{
+	SetActorHiddenInGame(bDead);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, bDead ? ECR_Ignore : ECR_Block);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, bDead ? ECR_Ignore : ECR_Block);
+	
+	if (GetCharacterMovement())
+	{
+		if (bDead)
+		{
+			GetCharacterMovement()->StopMovementImmediately();
+			GetCharacterMovement()->DisableMovement();
+		}else
+		{
+			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+		}
+	}
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (bDead)
+		{
+			DisableInput(PC);	
+		}else
+		{
+			EnableInput(PC);
+			PC->SetControlRotation(CurrentRespawnTransform.GetRotation().Rotator());
+		}
 	}
 }

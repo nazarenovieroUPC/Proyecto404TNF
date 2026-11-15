@@ -37,6 +37,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Health")
     void UpdateMaxHealth(float NewMaxHealth);
     
+    UFUNCTION(BlueprintCallable, Category = "Health")
+    void Revive();
+    
     UPROPERTY(BlueprintAssignable, Category = "Health|Events")
     FOnDeath OnDeath;
     
