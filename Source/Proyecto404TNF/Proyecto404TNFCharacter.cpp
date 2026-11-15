@@ -18,6 +18,8 @@
 #include "Components/EquipmentComponent.h"
 #include "Actors/Characters/NPCMision.h"
 #include "Components/ShopComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Widgets/OverheadHealthWidget.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -80,24 +82,41 @@ AProyecto404TNFCharacter::AProyecto404TNFCharacter()
 	
 	//Set Stats Component
 	StatsComponent = CreateDefaultSubobject<UStatsComponent>("StatsComponent");
+	
+	//Create a WidgetBarHealth
+	OverheadHealthWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadHealthWidgetComp"));
+	OverheadHealthWidgetComp->SetupAttachment(RootComponent);
+	OverheadHealthWidgetComp->SetRelativeLocation(FVector(0.0f, 0.0f, 115.0f)); 
+	OverheadHealthWidgetComp->SetWidgetSpace(EWidgetSpace::Screen); 
+	OverheadHealthWidgetComp->SetDrawAtDesiredSize(true);
+	
+	OverheadHealthWidgetComp->SetOwnerNoSee(true);
 }
 
 void AProyecto404TNFCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
-	
+    
 	if (HasAuthority())
 	{
 		CurrentRespawnTransform = GetActorTransform();
 	}
-	
-	if (HealthComponent){ HealthComponent -> OnDeath.AddDynamic(this, &AProyecto404TNFCharacter::OnDying); }
-	
+	if (HealthComponent)
+	{ 
+		HealthComponent->OnDeath.AddDynamic(this, &AProyecto404TNFCharacter::OnDying);
+		HealthComponent->OnHealthChanged.AddDynamic(this, &AProyecto404TNFCharacter::OnCharacterHealthChanged);
+	}
+	if (IsLocallyControlled() && OverheadHealthWidgetComp)
+	{
+		OverheadHealthWidgetComp->SetVisibility(false);
+	}
+	else if (HealthComponent)
+	{
+		OnCharacterHealthChanged(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+	}
 	if (StatsComponent && EquipmentComponent)
 	{
 		StatsComponent->InitializeEquipmentLink(EquipmentComponent);
-		
 		StatsComponent->OnTotalStatsUpdated.AddDynamic(this, &AProyecto404TNFCharacter::SyncStatsWithComponents);
 	}
 }
@@ -445,5 +464,15 @@ void AProyecto404TNFCharacter::Multicast_SetDeathState_Implementation(bool bDead
 			EnableInput(PC);
 			PC->SetControlRotation(CurrentRespawnTransform.GetRotation().Rotator());
 		}
+	}
+}
+
+void AProyecto404TNFCharacter::OnCharacterHealthChanged(float CurrentHealth, float MaxHealth)
+{
+	if (!OverheadHealthWidgetComp || IsLocallyControlled()) return;
+
+	if (UOverheadHealthWidget* HealthWidget = Cast<UOverheadHealthWidget>(OverheadHealthWidgetComp->GetUserWidgetObject()))
+	{
+		HealthWidget->UpdateHealthBar(CurrentHealth, MaxHealth);
 	}
 }

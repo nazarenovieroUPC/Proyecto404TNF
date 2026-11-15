@@ -21,6 +21,7 @@ class UInputAction;
 class UShopComponent;
 class ANPCMision;
 struct FInputActionValue;
+class UWidgetComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -118,6 +119,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
 	float RespawnTime = 3.0f;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<UWidgetComponent> OverheadHealthWidgetComp;
+	
 protected:
 
 	/** Called for movement input */
@@ -173,6 +177,9 @@ protected:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_SetDeathState(bool bDead);
+	
+	UFUNCTION()
+	void OnCharacterHealthChanged(float CurrentHealth, float MaxHealth);
 	
 public:
 	/** Returns CameraBoom subobject **/
