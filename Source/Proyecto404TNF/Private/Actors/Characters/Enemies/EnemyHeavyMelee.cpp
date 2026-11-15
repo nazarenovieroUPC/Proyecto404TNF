@@ -50,9 +50,11 @@ void AEnemyHeavyMelee::Tick(float DeltaTime)
 
 void AEnemyHeavyMelee::StartCharge()
 {
+	if (!HasAuthority()) return;
 	if (bIsCharging) return;
 	
 	bIsCharging = true;
+	BoarRotation = GetCharacterMovement()->RotationRate;
 	
 	ChargeHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	
@@ -65,11 +67,14 @@ void AEnemyHeavyMelee::StartCharge()
 
 void AEnemyHeavyMelee::StopCharge()
 {
+	if (!HasAuthority()) return;
+	
 	bIsCharging = false;
 	
 	ChargeHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeedChase;
+	GetCharacterMovement()->RotationRate = BoarRotation;
 	
 	GetWorldTimerManager().ClearTimer(ChargeTimerHandle);
 }
@@ -98,6 +103,12 @@ void AEnemyHeavyMelee::RecoverFromStun()
 	bIsStuned = false;
 	
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeedChase;
+	
+	if (AAIController* AIC = Cast<AAIController>(GetController()))
+	{
+		if (AIC->GetBlackboardComponent())
+			AIC->GetBlackboardComponent()->SetValueAsBool(FName("IsStunned"), false);
+	}
 }
 
 void AEnemyHeavyMelee::OnChargeHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -132,7 +143,7 @@ void AEnemyHeavyMelee::OnWallHit(UPrimitiveComponent* HitComponent, AActor* Othe
 {
 	if (!HasAuthority()) return;
 	
-	if (bIsCharging && OtherActor && OtherActor != this && !Hit.GetActor()->Implements<AProyecto404TNFCharacter>())
+	if (bIsCharging && OtherActor && OtherActor != this && !Hit.GetActor()->IsA<AProyecto404TNFCharacter>())
 	{
 		StunEnemy();
 	}

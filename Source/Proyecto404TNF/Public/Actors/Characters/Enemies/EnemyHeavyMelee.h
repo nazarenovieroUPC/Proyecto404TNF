@@ -6,7 +6,6 @@
 #include "EnemyMelee.h"
 #include "EnemyHeavyMelee.generated.h"
 
-class UBoxComponent;
 
 UCLASS()
 class PROYECTO404TNF_API AEnemyHeavyMelee : public AEnemyMelee
@@ -56,12 +55,15 @@ protected:
 	
 	UFUNCTION()
 	void OnRep_IsStuned();
+	
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_IsCharging)
+	FRotator BoarRotation;
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	UFUNCTION(Blueprintable, Category = "Skills")
+	UFUNCTION(Category = "Skills")
 	void StartCharge();
 	
 	void StopCharge();
