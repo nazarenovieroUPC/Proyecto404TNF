@@ -123,6 +123,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
 	float RespawnTime = 3.0f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_RolActual, VisibleAnywhere, BlueprintReadOnly, Category = "Coop")
+	bool bTieneRolAsignado = false;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	TObjectPtr<UWidgetComponent> OverheadHealthWidgetComp;
@@ -199,6 +202,11 @@ protected:
 	UFUNCTION()
 	void OnCharacterHealthChanged(float CurrentHealth, float MaxHealth);
 	
+	UFUNCTION()
+	void OnRep_RolActual();
+
+	void UpdateOverheadRoleUI();
+	
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -214,6 +222,8 @@ public:
 	UFUNCTION(BLueprintCallable)
 	void InteractOtherActor();
 	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	UFUNCTION()
 	void SyncStatsWithComponents();
 	
@@ -226,9 +236,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_RecibirBuffCoop(ERolCoop RolAsignado);
 	
-	UFUNCTION()
-	void RevertirBuffCoop();
-	
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Tienda")
 	void Server_ComprarItemEnTienda(UShopComponent* Tienda, int32 IndiceOferta);
 	
@@ -238,7 +245,7 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Mision")
 	void Server_EntregarMaterialesEnNPC(ANPCMision* NPC);
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coop")
+	UPROPERTY(ReplicatedUsing = OnRep_RolActual, VisibleAnywhere, BlueprintReadOnly, Category = "Coop")
 	ERolCoop RolActual;
 	
 	void SetRespawnTransform(const FTransform& NewTransform) {CurrentRespawnTransform = NewTransform;};

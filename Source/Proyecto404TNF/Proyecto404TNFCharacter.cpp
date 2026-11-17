@@ -21,6 +21,7 @@
 #include "Components/ShopComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/OverheadHealthWidget.h"
+#include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -114,10 +115,14 @@ void AProyecto404TNFCharacter::BeginPlay()
 	{
 		OverheadHealthWidgetComp->SetVisibility(false);
 	}
-	else if (HealthComponent)
+	else
 	{
-		OnCharacterHealthChanged(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
-	}
+		if (HealthComponent)
+		{
+			OnCharacterHealthChanged(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+		}
+		UpdateOverheadRoleUI();
+	}	
 	if (StatsComponent && EquipmentComponent)
 	{
 		StatsComponent->InitializeEquipmentLink(EquipmentComponent);
@@ -212,25 +217,6 @@ void AProyecto404TNFCharacter::SyncStatsWithComponents()
 	}
 }
 
-void AProyecto404TNFCharacter::RevertirBuffCoop()
-{
-	if (StatsComponent)
-	{
-		StatsComponent->StatsBuff.MaxHealth = 0.0f;
-		StatsComponent->StatsBuff.Defense = 0.0f;
-		StatsComponent->StatsBuff.MeleeDamage = 0.0f;
-		StatsComponent->StatsBuff.MagicDamage = 0.0f;
-		StatsComponent->StatsBuff.Speed = 0.0f;
-		StatsComponent->StatsBuff.MagicCoolDown = 0.0f;
-		
-		StatsComponent->RecalculateTotalStats();
-	}
-	if (IsLocallyControlled() && GEngine) 
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("El buff cooperativo ha expirado."));
-	}
-}
-
 void AProyecto404TNFCharacter::Server_PlayActionMontage_Implementation(UAnimMontage* Montage)
 {
 	Multicast_PlayActionMontage(Montage);
@@ -253,6 +239,8 @@ void AProyecto404TNFCharacter::Server_ComprarItemEnTienda_Implementation(UShopCo
 void AProyecto404TNFCharacter::Multicast_RecibirBuffCoop_Implementation(ERolCoop RolAsignado)
 {
 	RolActual = RolAsignado;
+	bTieneRolAsignado = true;
+	UpdateOverheadRoleUI();
 	FString NombreRol = TEXT("");
 	
 	if (StatsComponent)
@@ -286,14 +274,6 @@ void AProyecto404TNFCharacter::Multicast_RecibirBuffCoop_Implementation(ERolCoop
 			HealthComponent->HandleHeal(50.0f);
 		}
 	}
-	
-	if (IsLocallyControlled() && GEngine)
-	{
-		FString Mensaje = FString::Printf(TEXT("¡Nuevo jugador unido! Tu rol es: %s"), *NombreRol);
-		GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Cyan, Mensaje);
-	}
-	
-	GetWorldTimerManager().SetTimer(TimerRevertirBuff, this, &AProyecto404TNFCharacter::RevertirBuffCoop, 60.0f, false);
 }
 
 void AProyecto404TNFCharacter::Server_InteractuarGenerico_Implementation(AActor* ActorInteractuable)
@@ -511,5 +491,46 @@ void AProyecto404TNFCharacter::OnCharacterHealthChanged(float CurrentHealth, flo
 	if (UOverheadHealthWidget* HealthWidget = Cast<UOverheadHealthWidget>(OverheadHealthWidgetComp->GetUserWidgetObject()))
 	{
 		HealthWidget->UpdateHealthBar(CurrentHealth, MaxHealth);
+	}
+}
+
+void AProyecto404TNFCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AProyecto404TNFCharacter, RolActual);
+	DOREPLIFETIME(AProyecto404TNFCharacter, bTieneRolAsignado);
+}
+void AProyecto404TNFCharacter::OnRep_RolActual()
+{
+	UpdateOverheadRoleUI();
+}
+void AProyecto404TNFCharacter::UpdateOverheadRoleUI()
+{
+	if (!OverheadHealthWidgetComp || IsLocallyControlled()) return;
+
+	if (UOverheadHealthWidget* HealthWidget = Cast<UOverheadHealthWidget>(OverheadHealthWidgetComp->GetUserWidgetObject()))
+	{
+		if (!bTieneRolAsignado)
+		{
+			HealthWidget->UpdateRoleText(FText::GetEmpty());
+			return;
+		}
+
+		FText TextoRol;
+		switch (RolActual)
+		{
+		case ERolCoop::Tanque:
+			TextoRol = FText::FromString(TEXT("Tanque"));
+			break;
+		case ERolCoop::Guerrero:
+			TextoRol = FText::FromString(TEXT("Guerrero"));
+			break;
+		case ERolCoop::Mago:
+			TextoRol = FText::FromString(TEXT("Mago"));
+			break;
+		}
+
+		HealthWidget->UpdateRoleText(TextoRol);
 	}
 }
