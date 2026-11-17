@@ -5,6 +5,7 @@
 
 #include "Components/CombatComponent.h"
 #include "Components/StatsComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AEnemyMelee::AEnemyMelee()
@@ -13,11 +14,23 @@ AEnemyMelee::AEnemyMelee()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
+void AEnemyMelee::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AEnemyMelee, bIsAttacking);
+}
+
 // Called when the game starts or when spawned
 void AEnemyMelee::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void AEnemyMelee::EndAttack()
+{
+	bIsAttacking = false;
 }
 
 // Called to bind functionality to input
@@ -30,6 +43,11 @@ void AEnemyMelee::EnemyAttack_Implementation()
 {
 	Super::EnemyAttack_Implementation();
 	
-	if (CombatComponent) CombatComponent -> MeleeAttack(StatsComponent->StatsTotal.MeleeDamage);
+	if (!HasAuthority() || bIsAttacking) return;
+
+	bIsAttacking = true;
+	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AEnemyMelee::EndAttack, AttackDuration, false);
+
+	if (CombatComponent) CombatComponent->MeleeAttack(StatsComponent->StatsTotal.MeleeDamage);
 }
 

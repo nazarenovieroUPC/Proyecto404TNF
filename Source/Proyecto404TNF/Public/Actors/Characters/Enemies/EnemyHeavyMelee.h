@@ -86,4 +86,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	virtual void EnemyAttack_Implementation() override;
+	
+	virtual void EnterRagdoll() override;
 };

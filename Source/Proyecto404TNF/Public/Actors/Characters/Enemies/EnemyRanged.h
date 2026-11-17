@@ -24,4 +24,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	virtual void EnemyAttack_Implementation() override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+    TObjectPtr<UAnimMontage> AttackMontage;
+    
+    UFUNCTION(NetMulticast, Reliable)
+    void Multicast_PlayAttackMontage();
 };

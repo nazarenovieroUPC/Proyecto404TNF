@@ -6,7 +6,6 @@
 #include "Components/CombatComponent.h"
 #include "Components/StatsComponent.h"
 
-
 // Sets default values
 AEnemyRanged::AEnemyRanged()
 {
@@ -31,5 +30,17 @@ void AEnemyRanged::EnemyAttack_Implementation()
 {
 	// Cambiar Stats de enemigo 
 	if (CombatComponent) CombatComponent -> RangedAttack(StatsComponent->StatsTotal.MagicDamage);
+	
+	if (!HasAuthority()) return;
+	
+	Multicast_PlayAttackMontage();
+}
+
+void AEnemyRanged::Multicast_PlayAttackMontage_Implementation()
+{
+	if (AttackMontage)
+	{
+		PlayAnimMontage(AttackMontage);
+	}
 }
 

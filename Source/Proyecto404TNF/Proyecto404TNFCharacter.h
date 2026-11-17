@@ -12,6 +12,7 @@
 #include "Logging/LogMacros.h"
 #include "Proyecto404TNFCharacter.generated.h"
 
+class UDamageFlashComponent;
 class UCombatComponent;
 class UHealthComponent;
 class USpringArmComponent;
@@ -93,6 +94,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UStatsComponent> StatsComponent;
 	
+	//DamageFlash Component
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UDamageFlashComponent> DamageFlashComponent;
+	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UArrowComponent> ArrowMagicComponent;
 	
@@ -122,6 +127,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	TObjectPtr<UWidgetComponent> OverheadHealthWidgetComp;
 	
+	//Anim Montages
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> MeleeMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> MagicMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> DashMontage;
+	
+	void PlayActionMontage(UAnimMontage* Montage);
+	
 protected:
 
 	/** Called for movement input */
@@ -144,7 +161,7 @@ protected:
 	bool bCanDash = true;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attack")
-	bool bCanAttack;
+	bool bCanAttack = true;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Leveling")
 	class ULevelingComponent* LevelingComponent;
@@ -159,6 +176,7 @@ protected:
 	FTimerHandle DashTimerHandle;
 	FTransform CurrentRespawnTransform;
 	FTimerHandle TimerRespawn;
+	FTimerHandle AttackTimerHandle;
 	
 	void ExecuteRespawn();
 	
@@ -196,9 +214,6 @@ public:
 	UFUNCTION(BLueprintCallable)
 	void InteractOtherActor();
 	
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void AnimationSwordAttack();
-	
 	UFUNCTION()
 	void SyncStatsWithComponents();
 	
@@ -227,6 +242,13 @@ public:
 	ERolCoop RolActual;
 	
 	void SetRespawnTransform(const FTransform& NewTransform) {CurrentRespawnTransform = NewTransform;};
+	
+	//Anims Montage
+	UFUNCTION(Server, Unreliable)
+	void Server_PlayActionMontage(UAnimMontage* Montage);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayActionMontage(UAnimMontage* Montage);
 	
 private:
 	FTimerHandle TimerRevertirBuff;

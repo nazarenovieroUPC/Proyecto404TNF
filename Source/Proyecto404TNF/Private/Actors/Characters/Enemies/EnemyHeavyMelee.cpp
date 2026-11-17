@@ -160,12 +160,21 @@ void AEnemyHeavyMelee::EnemyAttack_Implementation()
 	StartCharge();
 }
 
+void AEnemyHeavyMelee::EnterRagdoll()
+{
+	GetWorldTimerManager().ClearTimer(ChargeTimerHandle);
+	GetWorldTimerManager().ClearTimer(StunTimerHandle);
+	ChargeHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	Super::EnterRagdoll();
+}
+
 //RPCs
 void AEnemyHeavyMelee::OnRep_IsCharging()
 {
 	if (bIsCharging)
 	{
-		//Para las animaciones futuras del jabali.
+		//Sounds.
 	}	
 }
 
@@ -173,7 +182,7 @@ void AEnemyHeavyMelee::OnRep_IsStuned()
 {
 	if (bIsStuned)
 	{
-		//futuras anims.
+		//Sounds.
 	}
 }
 

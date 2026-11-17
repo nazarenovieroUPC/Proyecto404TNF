@@ -17,6 +17,7 @@
 #include "Components/LevelingComponent.h"
 #include "Components/EquipmentComponent.h"
 #include "Actors/Characters/NPCMision.h"
+#include "Components/DamageFlashComponent.h"
 #include "Components/ShopComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/OverheadHealthWidget.h"
@@ -83,6 +84,9 @@ AProyecto404TNFCharacter::AProyecto404TNFCharacter()
 	//Set Stats Component
 	StatsComponent = CreateDefaultSubobject<UStatsComponent>("StatsComponent");
 	
+	//Set DamageFlashComponent
+	DamageFlashComponent = CreateDefaultSubobject<UDamageFlashComponent>("DamageFlashComponent");
+	
 	//Create a WidgetBarHealth
 	OverheadHealthWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadHealthWidgetComp"));
 	OverheadHealthWidgetComp->SetupAttachment(RootComponent);
@@ -142,7 +146,12 @@ void AProyecto404TNFCharacter::NotifyActorEndOverlap(AActor* OtherActor)
 void AProyecto404TNFCharacter::TakeDamage_Implementation(float TakeDamage, AActor* DamagerActor)
 {
 	IDamageableInterface::TakeDamage_Implementation(TakeDamage, DamagerActor);
-	if (HealthComponent) { HealthComponent -> HandleDamage(TakeDamage); }
+	if (HealthComponent)
+	{
+		HealthComponent -> HandleDamage(TakeDamage);
+		
+		if (DamageFlashComponent) DamageFlashComponent->TriggerFlash();
+	}
 }
 
 void AProyecto404TNFCharacter::OnDying()
@@ -222,6 +231,17 @@ void AProyecto404TNFCharacter::RevertirBuffCoop()
 	}
 }
 
+void AProyecto404TNFCharacter::Server_PlayActionMontage_Implementation(UAnimMontage* Montage)
+{
+	Multicast_PlayActionMontage(Montage);
+}
+
+void AProyecto404TNFCharacter::Multicast_PlayActionMontage_Implementation(UAnimMontage* Montage)
+{
+	if (IsLocallyControlled()) return;
+	PlayAnimMontage(Montage);
+}
+
 void AProyecto404TNFCharacter::Server_ComprarItemEnTienda_Implementation(UShopComponent* Tienda, int32 IndiceOferta)
 {
 	if (Tienda)
@@ -292,12 +312,6 @@ void AProyecto404TNFCharacter::ServerRomperCaja_Implementation(ALootBox* CajaAta
 	}
 }
 
-void AProyecto404TNFCharacter::AnimationSwordAttack_Implementation()
-{
-	bCanAttack=true;
-}
-
-
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -316,8 +330,8 @@ void AProyecto404TNFCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		
 		//Interact
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &AProyecto404TNFCharacter::Dash);
@@ -340,6 +354,22 @@ void AProyecto404TNFCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+}
+
+void AProyecto404TNFCharacter::PlayActionMontage(UAnimMontage* Montage)
+{
+	if (!Montage) return;
+
+	PlayAnimMontage(Montage);
+
+	if (HasAuthority())
+	{
+		Multicast_PlayActionMontage(Montage);
+	}
+	else
+	{
+		Server_PlayActionMontage(Montage);
 	}
 }
 
@@ -387,6 +417,8 @@ void AProyecto404TNFCharacter::Dash(const FInputActionValue& Value)
 		
 		LaunchCharacter(DashForce * DashDirection, true, true);
 		
+		PlayActionMontage(DashMontage);
+		
 		bCanDash = false;
 		
 		GetWorldTimerManager().SetTimer(DashTimerHandle, [this](){bCanDash = true;}, DashCoolDown, false);
@@ -399,14 +431,19 @@ void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 	if (bCanAttack){
 		bCanAttack = true;
 		
-		AnimationSwordAttack();
+		PlayActionMontage(MeleeMontage);
 		
 		if (CombatComponent){ CombatComponent -> MeleeAttack(StatsComponent->StatsTotal.MeleeDamage); }
+		
+		const float Lock = MeleeMontage ? MeleeMontage->GetPlayLength() : 0.3f;
+		GetWorldTimerManager().SetTimer(AttackTimerHandle, [this](){ bCanAttack = true; }, Lock, false);
 	}
 }
 
 void AProyecto404TNFCharacter::AttackMagic(const FInputActionValue& Value)
 {
+	PlayActionMontage(MagicMontage);
+	
 	if (CombatComponent){ CombatComponent -> MagicAttack(StatsComponent->StatsTotal.MagicDamage, StatsComponent->StatsTotal.MagicCoolDown);}
 }
 

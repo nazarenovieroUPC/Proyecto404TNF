@@ -8,6 +8,7 @@
 #include "Interfaces/EnemyInterface.h"
 #include "EnemyBase.generated.h"
 
+class UDamageFlashComponent;
 class UBehaviorTree;
 class UStatsComponent;
 class UCombatComponent;
@@ -36,9 +37,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TObjectPtr<UStatsComponent> StatsComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UDamageFlashComponent> DamageFlashComponent;
+	
 	// Variables
 	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Behavior Tree")
 	TObjectPtr<UBehaviorTree> EnemyBehaviorTree;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Death")
+	float RagdollLifeSpan = 4.f;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -53,6 +60,9 @@ protected:
 	
 	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	int WalkSpeedChase = 800;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_IsDead, BlueprintReadOnly, Category = "Death")
+	bool bIsDead = false;
 
 	bool bHasDroppedLoot;
 public:
@@ -61,6 +71,16 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	UFUNCTION()
+	void OnRep_IsDead();
+	
+	UFUNCTION(BlueprintCallable, Category = "Death")
+	virtual void Die();
+
+	virtual void EnterRagdoll();
 	
 	//Damageable Interface
 	virtual float GetActualHealth_Implementation() override;

@@ -3,13 +3,17 @@
 
 #include "Actors/Characters/Enemies/EnemyBase.h"
 
+#include "AIController.h"
+#include "BrainComponent.h"
 #include "Actors/Characters/Enemies/AI/Enums/EMovementSpeed.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/LootComponent.h"
 #include "Components/CombatComponent.h"
+#include "Components/DamageFlashComponent.h"
 #include "Components/StatsComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Perception/AISenseConfig_Damage.h"
 
 
@@ -25,6 +29,7 @@ AEnemyBase::AEnemyBase()
 	LootComponent = CreateDefaultSubobject<ULootComponent>("LootComponent");
 	StatsComponent = CreateDefaultSubobject<UStatsComponent>("StatsComponent");
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
+	DamageFlashComponent = CreateDefaultSubobject<UDamageFlashComponent>("DamageFlashComponent");
 	
 	bHasDroppedLoot = false;
 	
@@ -51,6 +56,57 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+void AEnemyBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AEnemyBase, bIsDead);
+}
+
+void AEnemyBase::OnRep_IsDead()
+{
+	if (bIsDead)
+	{
+		EnterRagdoll();
+	}
+}
+
+void AEnemyBase::Die()
+{
+	if (!HasAuthority() || bIsDead) return;
+
+	bIsDead = true;
+	
+	if (AAIController* AIC = Cast<AAIController>(GetController()))
+	{
+		if (UBrainComponent* Brain = AIC->GetBrainComponent())
+		{
+			Brain->StopLogic(TEXT("Dead"));
+		}
+		AIC->StopMovement();
+	}
+
+	EnterRagdoll();
+	SetLifeSpan(RagdollLifeSpan);
+}
+
+void AEnemyBase::EnterRagdoll()
+{
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->DisableMovement();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	if (UAnimInstance* Anim = GetMesh()->GetAnimInstance())
+	{
+		Anim->StopAllMontages(0.f);
+	}
+	
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+	GetMesh()->SetAllBodiesSimulatePhysics(true);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->WakeAllRigidBodies();
+}
+
 //Getters
 float AEnemyBase::GetActualHealth_Implementation()
 {
@@ -75,11 +131,13 @@ void AEnemyBase::TakeDamage_Implementation(float Damage, AActor* DamagerActor)
 {
 	IDamageableInterface::TakeDamage_Implementation(Damage, DamagerActor);
 	
-	if (!HasAuthority()) return;
+	if (!HasAuthority() || bIsDead) return;
 	
 	if (HealthComponent)
 	{
 		HealthComponent->HandleDamage(Damage);
+		
+		if (DamageFlashComponent) DamageFlashComponent->TriggerFlash();
 		
 		UAISense_Damage::ReportDamageEvent(GetWorld(), this, DamagerActor, Damage, DamagerActor->GetActorLocation(), GetActorLocation());
 		
@@ -94,7 +152,7 @@ void AEnemyBase::TakeDamage_Implementation(float Damage, AActor* DamagerActor)
 				LootComponent->DropLoot();
 			}
 			
-			Destroy();
+			Die();
 		}
 	}
 }
