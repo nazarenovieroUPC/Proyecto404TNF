@@ -266,4 +266,3 @@ public:
 private:
 	FTimerHandle TimerRevertirBuff;
 };
-

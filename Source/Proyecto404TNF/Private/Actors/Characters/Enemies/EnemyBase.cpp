@@ -13,6 +13,7 @@
 #include "Components/DamageFlashComponent.h"
 #include "Components/StatsComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Perception/AISenseConfig_Damage.h"
 
@@ -86,6 +87,7 @@ void AEnemyBase::Die()
 		AIC->StopMovement();
 	}
 
+	UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
 	EnterRagdoll();
 	SetLifeSpan(RagdollLifeSpan);
 }
@@ -181,4 +183,3 @@ float AEnemyBase::SetMovementSpeed_Implementation(EMovementSpeed MovementSpeed)
 	
 	return GetCharacterMovement()->MaxWalkSpeed;
 }
-

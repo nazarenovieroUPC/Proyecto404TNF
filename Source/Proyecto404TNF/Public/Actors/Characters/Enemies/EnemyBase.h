@@ -40,6 +40,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UDamageFlashComponent> DamageFlashComponent;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio")
+	TObjectPtr<USoundBase> DeathSound;
+	
 	// Variables
 	UPROPERTY(Blueprintable, EditAnywhere, BlueprintReadWrite, Category = "Behavior Tree")
 	TObjectPtr<UBehaviorTree> EnemyBehaviorTree;
