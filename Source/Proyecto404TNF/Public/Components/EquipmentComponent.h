@@ -16,54 +16,67 @@ class PROYECTO404TNF_API UEquipmentComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	
 	UEquipmentComponent();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
-	
 	virtual void BeginPlay() override;
 
 public:
-	
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
 	FItemData GetEquippedItemData(EEquipmentSlot SlotType);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
 	bool EquipItem(FItemData ItemToEquip);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
 	bool UnequipItem(EEquipmentSlot SlotToUnequip);
-	
+
 	UFUNCTION(BlueprintPure, Category = "Equipment/Stats")
 	float GetStatBonus(EItemStatType StatType) const;
-	
+
 	UPROPERTY(BlueprintAssignable, Category = "Equipment/Events")
 	FOnEquipmentChanged OnEquipmentChanged;
-	
+
 	UPROPERTY(BlueprintAssignable, Category = "Equipment/Events")
 	FOnStatsUpdated OnStatsUpdated;
+
+protected:
+	UFUNCTION(Server, Reliable)
+	void Server_EquipItem(FItemData ItemToEquip);
+
+	UFUNCTION(Server, Reliable)
+	void Server_UnequipItem(EEquipmentSlot SlotToUnequip);
 	
+	UPROPERTY(ReplicatedUsing = OnRep_ReplicatedEquippedItems)
+	TArray<FItemData> ReplicatedEquippedItems;
+
+	UFUNCTION()
+	void OnRep_ReplicatedEquippedItems();
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Equipment/State")
 	TMap<EEquipmentSlot, FItemData> EquippedItems;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
 	FItemData CascoEquipado;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
 	FItemData PecheraEquipada;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
 	FItemData BotasEquipadas;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
 	FItemData ArmaEquipada;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Equipment/Items")
 	FItemData MascotaEquipada;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Equipment/State")
 	TMap<EItemStatType, float> CurrentStatBonuses;
-	
+
 	void RecalculateStats();
+	void SyncReplicatedArray();
 };

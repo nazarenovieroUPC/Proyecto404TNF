@@ -60,6 +60,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     bool ConsumirItemPorNombre(FText NombreItem, int32 CantidadAConsumir);
+    
+    UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Inventory")
+    void Server_RemoveItemAtIndex(int32 Index);
+
+    UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Inventory")
+    void Server_SetItemAtIndex(int32 Index, FItemData ItemIn);
 
 protected:
     virtual void BeginPlay() override;

@@ -221,3 +221,13 @@ bool UInventoryComponent::ConsumirItemPorNombre(FText NombreItem, int32 Cantidad
     OnRep_InventoryContents();
     return true;
 }
+
+void UInventoryComponent::Server_RemoveItemAtIndex_Implementation(int32 Index)
+{
+    RemoveItemAtIndex(Index);
+}
+
+void UInventoryComponent::Server_SetItemAtIndex_Implementation(int32 Index, FItemData ItemIn)
+{
+    SetItemAtIndex(Index, ItemIn);
+}

@@ -5,6 +5,7 @@
 #include "WidgetMision.generated.h"
 
 class UButton;
+class UTextBlock;
 class UWidgetSwitcher;
 class ANPCMision;
 
@@ -15,9 +16,14 @@ class PROYECTO404TNF_API UWidgetMision : public UUserWidget
     
 public:
 	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
     
 	UPROPERTY(BlueprintReadWrite, Category = "NPC")
 	TObjectPtr<ANPCMision> NPCVinculado;
+
+	UFUNCTION(BlueprintCallable, Category = "Mision")
+	void ActualizarEstadoMisionUI();
     
 protected:
 	UPROPERTY(meta = (BindWidgetOptional))
@@ -37,6 +43,15 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Cerrar;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> Txt_BtnAceptar;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> Txt_BtnEntregar;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> Txt_EstadoMision;
     
 	UFUNCTION()
 	void MostrarVistaMision();
@@ -52,4 +67,7 @@ protected:
 
 	UFUNCTION()
 	void OnButtonCerrarClicked();
+
+private:
+	bool bEsperandoConfirmacionAceptar = false;
 };
