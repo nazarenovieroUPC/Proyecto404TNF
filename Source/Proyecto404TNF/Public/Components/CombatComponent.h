@@ -53,7 +53,7 @@ public:
 	virtual void MeleeAttack(float Damage);
     
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	virtual void MagicAttack(float MagicDamage, float MagicCoolDown);
+	virtual bool MagicAttack(float MagicDamage, float MagicCoolDown);
     
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void RangedAttack(float Damage);

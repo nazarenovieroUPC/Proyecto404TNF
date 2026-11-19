@@ -98,14 +98,14 @@ void UCombatComponent::MeleeAttack(float Damage)
     }
 }
 
-void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
+bool UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 {
 	if (MagicCoolDown <= 0.05f)
 	{
 		MagicCoolDown = 2.5f; 
 	}
 	
-	if (!bCanMagicAttack) return;
+	if (!bCanMagicAttack) return false;
 	
 	if (!GetOwner()->HasAuthority())
 	{
@@ -152,6 +152,8 @@ void UCombatComponent::MagicAttack(float MagicDamage, float MagicCoolDown)
 
 		OnMagicAttack.Broadcast();
 	}
+	
+	return true;
 }
 
 void UCombatComponent::RangedAttack(float Damage)

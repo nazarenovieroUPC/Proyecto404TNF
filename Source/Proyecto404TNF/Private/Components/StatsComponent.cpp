@@ -50,8 +50,12 @@ void UStatsComponent::BeginPlay()
 
 void UStatsComponent::ChangeSpeedMovement(float Speed)
 {
+    
     if (ACharacter* CharacterOwner = Cast<ACharacter>(GetOwner()))
     {
+        UE_LOG(LogTemp, Warning, TEXT("[Speed] ChangeSpeedMovement(%.1f) en %s, NetMode %d"),
+    Speed, *GetOwner()->GetName(), (int32)GetNetMode());
+        
         if (UCharacterMovementComponent* MoveComp = CharacterOwner->GetCharacterMovement())
         {
             MoveComp->MaxWalkSpeed = Speed;
@@ -119,6 +123,12 @@ void UStatsComponent::RecalculateTotalStats()
         StatsTotal.Speed += CachedEquipment->GetStatBonus(EItemStatType::Speed);
         StatsTotal.MagicCoolDown -= CachedEquipment->GetStatBonus(EItemStatType::MagicCoolDown);
     }
+    
+    UE_LOG(LogTemp, Warning, TEXT("[Speed] Base=%.1f Buff=%.1f Equip=%.1f Total=%.1f"),
+    StatsBase.Speed,
+    StatsBuff.Speed,
+    CachedEquipment ? CachedEquipment->GetStatBonus(EItemStatType::Speed) : 0.f,
+    StatsTotal.Speed);
     
     ChangeSpeedMovement(StatsTotal.Speed);
     

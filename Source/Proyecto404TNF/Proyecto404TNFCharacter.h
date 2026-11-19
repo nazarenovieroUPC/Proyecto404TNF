@@ -140,7 +140,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	TObjectPtr<UAnimMontage> DashMontage;
 	
-	void PlayActionMontage(UAnimMontage* Montage);
+	float PlayActionMontage(UAnimMontage* Montage);
+	
+	void LockAttack(float Duration);
 	
 protected:
 
@@ -161,6 +163,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Overlap", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> OverlapActor;
 	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Dash")
 	bool bCanDash = true;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attack")
@@ -244,6 +247,9 @@ public:
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Mision")
 	void Server_EntregarMaterialesEnNPC(ANPCMision* NPC);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_Dash(FVector_NetQuantizeNormal Direction);
 	
 	UPROPERTY(ReplicatedUsing = OnRep_RolActual, VisibleAnywhere, BlueprintReadOnly, Category = "Coop")
 	ERolCoop RolActual;

@@ -112,21 +112,11 @@ void UHordeManagerComponent::TimeLimitReached()
 void UHordeManagerComponent::OnEnemyDestroyed(AActor* DestroyedActor)
 {
 	EnemiesAlive--;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("EnemyDestroyed. Restantes: %d"), EnemiesAlive));
 	CheckWaveState();
 }
 
 void UHordeManagerComponent::CheckWaveState()
 {
-	if (GEngine)
-	{
-		int32 SafeWaveIndex = FMath::Min(CurrentWaveIndex, Waves.Num() - 1);
-		int32 Requeridos = Waves[SafeWaveIndex].EnemiesToSpawn;
-        
-		FString Msg = FString::Printf(TEXT("CheckWave -> Vivos: %d | Spawneados: %d / %d"), EnemiesAlive, EnemiesSpawnedInCurrentWave, Requeridos);
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, Msg);
-	}
-	
 	if (EnemiesAlive <= 0)
 	{
 		if (bTimeIsUp)

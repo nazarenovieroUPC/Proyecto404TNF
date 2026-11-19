@@ -25,18 +25,9 @@ void AMisionSystemState::AgregarItemMision()
 	{
 		ItemsRecolectados++;
 		
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Items: %d / %d"), ItemsRecolectados, ItemsNecesarios));
-		}
-		
 		if (ItemsRecolectados >= ItemsNecesarios)
 		{
-			if (GEngine)
-			{
-				OnMisionCompletada.Broadcast();
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("MISION COMPLETADA: Hora de armar el puente!"));
-			}
+			OnMisionCompletada.Broadcast();
 		}
 	}
 }

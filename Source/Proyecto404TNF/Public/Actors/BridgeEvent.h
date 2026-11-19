@@ -10,6 +10,16 @@
 class UBoxComponent;
 class UHordeManagerComponent;
 class UArrowComponent;
+class UWidgetComponent;
+
+UENUM(BlueprintType)
+enum class EBridgePhase : uint8
+{
+    Idle,
+    Horde,
+    Building,
+    Done
+};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBridgeCompletedSignature);
 
@@ -28,6 +38,9 @@ public:
     
     UPROPERTY(ReplicatedUsing = OnRep_BridgeBuilt, BlueprintReadOnly, Category = "Mision")
     bool bBridgeBuilt;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bridge|UI")
+    TObjectPtr<UWidgetComponent> InfoWidgetComp;
 
     UFUNCTION()
     void OnRep_BridgeBuilt();
@@ -97,4 +110,27 @@ private:
     int32 CurrentSegmentIndex = 0;
     FRotator BridgeRotation;
     FVector SegmentStepVector;
+    
+    UPROPERTY(ReplicatedUsing = OnRep_Phase)
+    EBridgePhase Phase = EBridgePhase::Idle;
+    
+    UPROPERTY(Replicated)
+    float HordeEndTime = 0.f;
+
+    UFUNCTION()
+    void OnRep_Phase();
+
+    UFUNCTION()
+    void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                           int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+    UFUNCTION()
+    void OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                         int32 OtherBodyIndex);
+
+    void SetPhase(EBridgePhase NewPhase);
+    void RefreshInfoText();
+
+    FTimerHandle InfoTimerHandle;
+    bool bLocalPlayerInside = false;
 };

@@ -106,6 +106,7 @@ void AProyecto404TNFCharacter::BeginPlay()
 	{
 		CurrentRespawnTransform = GetActorTransform();
 	}
+	
 	if (HealthComponent)
 	{ 
 		HealthComponent->OnDeath.AddDynamic(this, &AProyecto404TNFCharacter::OnDying);
@@ -215,6 +216,11 @@ void AProyecto404TNFCharacter::SyncStatsWithComponents()
 	{
 		HealthComponent->UpdateMaxHealth(StatsComponent->StatsTotal.MaxHealth);
 	}
+}
+
+void AProyecto404TNFCharacter::Server_Dash_Implementation(FVector_NetQuantizeNormal Direction)
+{
+	LaunchCharacter(FVector(Direction) * DashForce, true, true);
 }
 
 void AProyecto404TNFCharacter::Server_PlayActionMontage_Implementation(UAnimMontage* Montage)
@@ -337,11 +343,11 @@ void AProyecto404TNFCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	}
 }
 
-void AProyecto404TNFCharacter::PlayActionMontage(UAnimMontage* Montage)
+float AProyecto404TNFCharacter::PlayActionMontage(UAnimMontage* Montage)
 {
-	if (!Montage) return;
+	if (!Montage) return 0.f;
 
-	PlayAnimMontage(Montage);
+	const float Duration = PlayAnimMontage(Montage);
 
 	if (HasAuthority())
 	{
@@ -351,6 +357,19 @@ void AProyecto404TNFCharacter::PlayActionMontage(UAnimMontage* Montage)
 	{
 		Server_PlayActionMontage(Montage);
 	}
+
+	return Duration;
+}
+
+void AProyecto404TNFCharacter::LockAttack(float Duration)
+{
+	bCanAttack = false;
+
+	GetWorldTimerManager().SetTimer(
+		AttackTimerHandle,
+		[this]() { bCanAttack = true; },
+		FMath::Max(Duration, 0.1f),
+		false);
 }
 
 void AProyecto404TNFCharacter::Move(const FInputActionValue& Value)
@@ -391,40 +410,51 @@ void AProyecto404TNFCharacter::Look(const FInputActionValue& Value)
 
 void AProyecto404TNFCharacter::Dash(const FInputActionValue& Value)
 {
-	if (Controller != nullptr && bCanDash)
+	
+	if (!Controller || !bCanDash) return;
+
+	FVector DashDirection = GetCharacterMovement()->GetLastInputVector();
+	DashDirection.Z = 0.f;
+
+	if (DashDirection.IsNearlyZero())
 	{
-		FVector DashDirection = GetActorForwardVector();
-		
-		LaunchCharacter(DashForce * DashDirection, true, true);
-		
-		PlayActionMontage(DashMontage);
-		
-		bCanDash = false;
-		
-		GetWorldTimerManager().SetTimer(DashTimerHandle, [this](){bCanDash = true;}, DashCoolDown, false);
+		DashDirection = GetActorForwardVector();
 	}
+	DashDirection.Normalize();
+
+	bCanDash = false;
+	GetWorldTimerManager().SetTimer(DashTimerHandle, [this]() { bCanDash = true; }, DashCoolDown, false);
+
+	LaunchCharacter(DashDirection * DashForce, true, true);
+	if (!HasAuthority())
+	{
+		Server_Dash(DashDirection);
+	}
+
+	PlayActionMontage(DashMontage);
 }
 
 //Attacks
 void AProyecto404TNFCharacter::AttackMelee(const FInputActionValue& Value)
 {
-	if (bCanAttack){
-		bCanAttack = true;
+	if (!bCanAttack) return;
+	
+	LockAttack(PlayActionMontage(MeleeMontage));
 		
-		PlayActionMontage(MeleeMontage);
-		
-		if (CombatComponent){ CombatComponent -> MeleeAttack(StatsComponent->StatsTotal.MeleeDamage); }
-		
-		const float Lock = MeleeMontage ? MeleeMontage->GetPlayLength() : 0.3f;
-		GetWorldTimerManager().SetTimer(AttackTimerHandle, [this](){ bCanAttack = true; }, Lock, false);
+	if (CombatComponent)
+	{
+		CombatComponent -> MeleeAttack(StatsComponent->StatsTotal.MeleeDamage);
 	}
 }
 
 void AProyecto404TNFCharacter::AttackMagic(const FInputActionValue& Value)
 {
-	PlayActionMontage(MagicMontage);
-	
-	if (CombatComponent){ CombatComponent -> MagicAttack(StatsComponent->StatsTotal.MagicDamage, StatsComponent->StatsTotal.MagicCoolDown);}
+	if (!bCanAttack || !CombatComponent) return;
+
+	if (CombatComponent->MagicAttack(StatsComponent->StatsTotal.MagicDamage, StatsComponent->StatsTotal.MagicCoolDown))
+	{
+		LockAttack(PlayActionMontage(MagicMontage));
+	}
 }
 
 void AProyecto404TNFCharacter::Server_AceptarMisionEnNPC_Implementation(ANPCMision* NPC)

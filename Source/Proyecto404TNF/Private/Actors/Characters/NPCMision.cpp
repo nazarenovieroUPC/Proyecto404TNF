@@ -51,7 +51,7 @@ void ANPCMision::Server_EntregarMateriales_Implementation(AActor* Jugador)
 	
 	if (!GameStateMision || !GameStateMision->bMisionActiva)
 	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("La misión aún no ha sido aceptada."));
+		UE_LOG(LogTemp, Warning, TEXT("Mision no Aceptada"));
 		return;
 	}
 
@@ -78,8 +78,7 @@ void ANPCMision::Server_AceptarMision_Implementation()
 	{
 		GameStateMision->bMisionActiva = true;
         
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("¡LA MISIÓN HA COMENZADO PARA TODOS!"));
+		UE_LOG(LogTemp, Warning, TEXT("Mision Comenzada"));
 	}
 }
 

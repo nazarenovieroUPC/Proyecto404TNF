@@ -22,7 +22,7 @@ public:
 	float MagicDamage = 15.f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
-	float Speed = 1000.f;
+	float Speed = 0.f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
 	float MagicCoolDown = 5.f;
