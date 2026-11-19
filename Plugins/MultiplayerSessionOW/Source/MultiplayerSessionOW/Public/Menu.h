@@ -16,7 +16,7 @@ public:
 	void ConfigurarMenu(
 		int32 NumeroConexionesPublicas = 4,
 		FString TipoDePartida = FString(TEXT("KenoTeach")),
-		FString RutaLobby = FString(TEXT("/Game/ThirdPersonCPP/Maps/Lobby"))
+		FString RutaLobby = FString(TEXT("/Game/Game/Levels/Level_Final"))
 	);
 
 	UPROPERTY()
