@@ -4,10 +4,9 @@
 
 void UOverheadHealthWidget::UpdateHealthBar(float CurrentHealth, float MaxHealth)
 {
-	if (PB_AllyHealth && MaxHealth > 0.0f)
+	if (MaxHealth > 0.0f)
 	{
-		const float Percent = FMath::Clamp(CurrentHealth / MaxHealth, 0.0f, 1.0f);
-		PB_AllyHealth->SetPercent(Percent);
+		TargetPercent = FMath::Clamp(CurrentHealth / MaxHealth, 0.0f, 1.0f);
 	}
 }
 void UOverheadHealthWidget::UpdateRoleText(const FText& RoleText)
