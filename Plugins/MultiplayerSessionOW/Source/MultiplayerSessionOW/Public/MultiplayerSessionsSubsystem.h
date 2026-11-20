@@ -1,13 +1,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OnlineSessionSettings.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Interfaces/OnlineSessionInterface.h"
 
 #include "MultiplayerSessionsSubsystem.generated.h"
 
 //
-// Declaramos nuestros propios delegados para que Menu pueda enlazar callbacks
+// Delegados propios para que Menu pueda enlazar callbacks
 //
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultijugadorAlCrearSesionCompletada, bool, bFueExitoso);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FMultijugadorAlBuscarSesionesCompletado, const TArray<FOnlineSessionSearchResult>& ResultadosBusqueda, bool bFueExitoso);
@@ -15,9 +16,6 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FMultijugadorAlUnirseASesionCompletado, EOnJ
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultijugadorAlDestruirSesionCompletada, bool, bFueExitoso);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultijugadorAlIniciarSesionCompletada, bool, bFueExitoso);
 
-/**
- *
- */
 UCLASS()
 class MULTIPLAYERSESSIONOW_API UMultiplayerSessionsSubsystem : public UGameInstanceSubsystem
 {
@@ -25,9 +23,7 @@ class MULTIPLAYERSESSIONOW_API UMultiplayerSessionsSubsystem : public UGameInsta
 public:
 	UMultiplayerSessionsSubsystem();
 
-	//
-	// Manejo de sesiones. Menu llamara estas funciones
-	//
+	// Manejo de sesiones. Menu llama a estas funciones
 	void CrearSesion(int32 NumConexionesPublicas, FString TipoPartida);
 	void BuscarSesiones(int32 MaxResultadosBusqueda);
 	void UnirseASesion(const FOnlineSessionSearchResult& ResultadoSesion);
@@ -36,9 +32,7 @@ public:
 
 	bool EsValidaInterfazSesion();
 
-	//
-	// Nuestros delegados para que Menu se pueda suscribir
-	//
+	// Delegados propios para que Menu se pueda suscribir
 	FMultijugadorAlCrearSesionCompletada MultijugadorAlCrearSesionCompletada;
 	FMultijugadorAlBuscarSesionesCompletado MultijugadorAlBuscarSesionesCompletado;
 	FMultijugadorAlUnirseASesionCompletado MultijugadorAlUnirseASesionCompletado;
@@ -46,11 +40,7 @@ public:
 	FMultijugadorAlIniciarSesionCompletada MultijugadorAlIniciarSesionCompletada;
 
 protected:
-
-	//
-	// Callbacks internos que se agregan a la lista de delegados de Online Session Interface.
-	// No necesitan ser llamados fuera de esta clase.
-	//
+	// Callbacks internos que se agregan a la Online Session Interface
 	void AlCrearSesionCompletada(FName NombreSesion, bool bFueExitoso);
 	void AlBuscarSesionesCompletado(bool bFueExitoso);
 	void AlUnirseASesionCompletado(FName NombreSesion, EOnJoinSessionCompleteResult::Type Resultado);
@@ -58,14 +48,13 @@ protected:
 	void AlIniciarSesionCompletada(FName NombreSesion, bool bFueExitoso);
 
 private:
+	// Hace el JoinSession real (se llama directo o tras destruir una sesion previa)
+	void IntentarUnirse(const FOnlineSessionSearchResult& ResultadoSesion);
+
 	IOnlineSessionPtr InterfazSesion;
 	TSharedPtr<FOnlineSessionSettings> UltimasConfiguracionesSesion;
 	TSharedPtr<FOnlineSessionSearch> UltimaBusquedaSesion;
 
-	//
-	// Delegados para agregar a la interfaz de sesiones online.
-	// Enlazamos nuestros callbacks internos a estos.
-	//
 	FOnCreateSessionCompleteDelegate CrearSesionCompletadaDelegado;
 	FDelegateHandle CrearSesionCompletadaHandle;
 	FOnFindSessionsCompleteDelegate BuscarSesionesCompletadoDelegado;
@@ -78,6 +67,10 @@ private:
 	FDelegateHandle IniciarSesionCompletadaHandle;
 
 	bool bCrearSesionAlDestruir{ false };
-	int32 UltimoNumConexionesPublicas;
+	int32 UltimoNumConexionesPublicas{ 4 };
 	FString UltimoTipoPartida;
+
+	// Si hay que unirse a otra sesion estando ya en una (AlreadyInSession), se destruye la actual y luego se une
+	bool bUnirseAlDestruir{ false };
+	FOnlineSessionSearchResult ResultadoPendienteParaUnirse;
 };

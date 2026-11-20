@@ -16,11 +16,11 @@ public:
 	void ConfigurarMenu(
 		int32 NumeroConexionesPublicas = 4,
 		FString TipoDePartida = FString(TEXT("KenoTeach")),
-		FString RutaLobby = FString(TEXT("/Game/Game/Levels/Level_Final"))
+		FString RutaLobby = FString(TEXT("/Game/ThirdPersonCPP/Maps/Lobby"))
 	);
 
 	UPROPERTY()
-	class UWidgetSessionSerch* OpcionSesion;
+	class UWidgetSessionSerch* OpcionSesion = nullptr;
 
 	// SUGERIDO: usar la clase concreta del widget de item de busqueda
 	UPROPERTY(EditAnywhere, Category = "Busqueda de sesiones")
@@ -64,7 +64,7 @@ private:
 	void SeleccionarSesion(const FOnlineSessionSearchResult& ResultadoSesion);
 
 	// SubSistema para manejar sesiones online
-	class UMultiplayerSessionsSubsystem* SubsistemaSesiones;
+	class UMultiplayerSessionsSubsystem* SubsistemaSesiones = nullptr;
 
 	int32 NumeroConexionesPublicas{ 4 };
 	FString TipoDePartida{ TEXT("KenoTeach") };
